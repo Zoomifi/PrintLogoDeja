@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+android:padding="10dp"
+android:background="@color/Red">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/White">
+
+    <RelativeLayout
+        android:id="@+id/fields"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/success"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SUCCESS"
+            android:textColor="@color/Black"
+            android:layout_centerHorizontal="true"
+            android:textSize="35sp"
+            android:padding="5dp" />
+
+        <RelativeLayout
+            android:id="@+id/text"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/success"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        <TextView
+            android:id="@+id/received"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:text="Cash Received:"
+            android:textColor="@color/Black"
+            android:layout_alignParentLeft="true"
+            android:textSize="30sp"
+            android:padding="5dp" />
+        <TextView
+            android:id="@+id/received_amount"
+            android:layout_toRightOf="@+id/received"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/Black"
+            android:textSize="30sp"
+            android:padding="5dp" />
+        <TextView
+            android:id="@+id/total"
+            android:layout_below="@+id/received"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Order Total:"
+            android:textColor="@color/Black"
+            android:layout_alignLeft="@+id/received"
+            android:textSize="30sp"
+            android:padding="5dp" />
+        <TextView
+            android:id="@+id/total_amount"
+            android:layout_below="@+id/received"
+            android:layout_alignRight="@+id/received_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/Black"
+            android:textSize="30sp"
+            android:padding="5dp" />
+        <TextView
+            android:id="@+id/change"
+            android:layout_below="@+id/total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change Due:"
+            android:textColor="@color/Black"
+            android:layout_alignLeft="@+id/total"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:padding="5dp" />
+        <TextView
+            android:id="@+id/change_amount"
+            android:layout_below="@+id/total"
+            android:layout_alignRight="@+id/received_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/Black"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:padding="5dp" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/line"
+        android:layout_above="@+id/bottombuttons"
+        android:layout_width="match_parent"
+        android:layout_height="0.75dp"
+        android:background="@color/Black"/>
+
+    <LinearLayout
+        android:id="@+id/bottombuttons"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/customDialogSubmitButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Close Order"
+            android:textSize="16sp"
+            android:textColor="@color/White"
+            android:background="@drawable/aqua_green_button"
+            android:layout_margin="10dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
+<FrameLayout
+    android:id="@+id/full_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+</FrameLayout>
+</RelativeLayout>

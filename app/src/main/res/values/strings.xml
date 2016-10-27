@@ -1,0 +1,130 @@
+<resources>
+    <string name="app_name">Print Your Logo</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="no_account">There is no Clover account.</string>
+
+    <string name="input_receipt_text">Add text to end of the receipt</string>
+    <string name="test_print">Test Print</string>
+
+    <string name="blank">blank</string>
+    <string name="Date">Date</string>
+    <string name="Amount">Amount</string>
+    <string name="FirstName">First Name</string>
+    <string name="LastName">Last Name</string>
+    <string name="Email">Email</string>
+    <string name="PhoneNumber">Phone #</string>
+
+    <string name="ORGANIZATION_OR_COMPANY_NAME">zoomifi_donate_here_ORGANIZATION_OR_COMPANY_NAME</string>
+    <string name="donation_here_file">zoomifi_donate_here_donation_here_file</string>
+
+    <string name="donation_button1_price">zoomifi_donate_here_donation_button1_price</string>
+    <string name="donation_button2_price">zoomifi_donate_here_donation_button2_price</string>
+    <string name="donation_button3_price">zoomifi_donate_here_donation_button3_price</string>
+    <string name="donation_button4_price">zoomifi_donate_here_donation_button4_price</string>
+    <string name="donation_button5_price">zoomifi_donate_here_donation_button5_price</string>
+    <string name="donation_button6_price">zoomifi_donate_here_donation_button6_price</string>
+    <string name="donation_button7_price">zoomifi_donate_here_donation_button7_price</string>
+    <string name="donation_button8_price">zoomifi_donate_here_donation_button8_price</string>
+
+    <string name="doNotShowDialogAgain">zoomifi_donate_here_doNotShowDialogAgain</string>
+
+    <string name="ZeroDollars">0.00</string>
+    <string name="_1">1</string>
+    <string name="_2">2</string>
+    <string name="_3">3</string>
+    <string name="_4">4</string>
+    <string name="_5">5</string>
+    <string name="_6">6</string>
+    <string name="_7">7</string>
+    <string name="_8">8</string>
+    <string name="_9">9</string>
+    <string name="_00">00</string>
+    <string name="_0">0</string>
+    <string name="_DELETE">Delete</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Add">Add</string>
+    <string name="Save">Save</string>
+    <string name="Enter">Enter</string>
+
+    <string-array name="status_spinner">
+        <item>Active</item>
+        <item>Inactive</item>
+    </string-array>
+    <string-array name="active_spinner">
+        <item>All</item>
+        <item>Active</item>
+        <item>Inactive</item>
+    </string-array>
+
+    <string-array name="state_spinner">
+        <item>AL</item>
+        <item>AR</item>
+        <item>AZ</item>
+        <item>CA</item>
+        <item>CO</item>
+        <item>CT</item>
+        <item>DE</item>
+        <item>DC</item>
+        <item>FL</item>
+        <item>GA</item>
+        <item>HI</item>
+        <item>ID</item>
+        <item>IL</item>
+        <item>IN</item>
+        <item>IA</item>
+        <item>KS</item>
+        <item>KY</item>
+        <item>LA</item>
+        <item>ME</item>
+        <item>MD</item>
+        <item>MA</item>
+        <item>MI</item>
+        <item>MN</item>
+        <item>MS</item>
+        <item>MO</item>
+        <item>MT</item>
+        <item>NE</item>
+        <item>NV</item>
+        <item>NH</item>
+        <item>NJ</item>
+        <item>NM</item>
+        <item>NY</item>
+        <item>NC</item>
+        <item>ND</item>
+        <item>OH</item>
+        <item>OK</item>
+        <item>OR</item>
+        <item>PA</item>
+        <item>RI</item>
+        <item>SC</item>
+        <item>SD</item>
+        <item>TN</item>
+        <item>TX</item>
+        <item>UT</item>
+        <item>VT</item>
+        <item>VA</item>
+        <item>WA</item>
+        <item>WV</item>
+        <item>WI</item>
+        <item>WY</item>
+    </string-array>
+
+    <string name="payment_failed">Error: Payment failed.</string>
+    <string name="payment_successful">Payement successful!</string>
+
+
+    <string name="enterDonationAmount">Please Select Donation Amount:</string>
+    <string name="enterCredentials">Please Fill in:</string>
+    <string name="OtherAmount">Custom\nAmount</string>
+
+    <string name="navbutton1">Clock In</string>
+    <string name="navbutton2">Door</string>
+    <string name="navbutton3">IPEs</string>
+    <string name="navbutton4">Bar</string>
+
+    <string name="searchBarHint">Search by Name</string>
+
+</resources>

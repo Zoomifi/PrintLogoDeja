@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/White">s
+
+    <TextView
+        android:id="@+id/customDialogHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:text="Header"
+        android:textSize="30sp"
+        android:textColor="@color/White"
+        android:background="@color/AquaGreen"
+        android:gravity="center"
+        android:padding="15dp"/>
+
+    <RelativeLayout
+        android:id="@+id/receiptlayout"
+        android:layout_below="@+id/customDialogHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <Button
+            android:id="@+id/printreceipt"
+            android:layout_width="500dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Print Customer Receipt"
+            android:textSize="25sp"
+            android:textColor="@color/Black"
+            android:background="@drawable/white_button"
+            android:padding="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            />
+        <Button
+            android:id="@+id/textreceipt"
+            android:layout_below="@+id/printreceipt"
+            android:layout_alignLeft="@+id/printreceipt"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Text Receipt"
+            android:textSize="25sp"
+            android:textColor="@color/Black"
+            android:background="@drawable/white_button"
+            />
+        <Button
+            android:id="@+id/emailreceipt"
+            android:layout_below="@+id/printreceipt"
+            android:layout_alignRight="@+id/printreceipt"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Email Receipt"
+            android:textSize="25sp"
+            android:textColor="@color/Black"
+            android:background="@drawable/white_button"
+            />
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_below="@+id/customDialogHeader"
+        android:id="@+id/emaillayout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:visibility="gone"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="EMAIL RECEIPT"
+            android:textSize="24sp"
+            android:textColor="@color/Black"
+            android:layout_marginBottom="10dp"
+            />
+
+        <EditText
+            android:id="@+id/email_edittext"
+            android:hint="Enter your email"
+            android:layout_width="500dp"
+            android:inputType="textWebEmailAddress"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:background="@drawable/search_background"
+            android:singleLine="true"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_below="@+id/customDialogHeader"
+        android:id="@+id/textlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginLeft="20dp"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TEXT MESSAGE RECEIPT"
+            android:textSize="24sp"
+            android:textColor="@color/Black"
+            android:layout_marginBottom="10dp"
+            />
+
+        <EditText
+            android:id="@+id/text_edittext"
+            android:hint="Enter your phone number"
+            android:layout_width="500dp"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:textSize="24sp"
+            android:background="@drawable/search_background"
+            android:singleLine="true"
+            />
+
+    </LinearLayout>
+    <View
+        android:layout_above="@+id/buttons"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="0.75dp"
+        android:background="@color/Black"/>
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/customDialogCancelButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Decline"
+            android:textSize="16sp"
+            android:textColor="@color/Black"
+            android:background="@drawable/white_button"
+            android:layout_margin="10dp"/>
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Back"
+            android:textSize="16sp"
+            android:textColor="@color/Black"
+            android:background="@drawable/white_button"
+            android:layout_margin="10dp"/>
+        <Button
+            android:id="@+id/submitButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Submit"
+            android:textSize="16sp"
+            android:textColor="@color/Black"
+            android:background="@drawable/white_button"
+            android:layout_margin="10dp"/>
+
+    </LinearLayout>
+</RelativeLayout>

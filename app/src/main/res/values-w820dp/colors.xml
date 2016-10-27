@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="Black">#000000</color>
+    <color name="White">#FFFFFF</color>
+    <color name="BrightGreen">#8BC34A</color>
+    <color name="CloverGreen">#3b7b42</color>
+    <color name="CloverGreenTinted">#a3bfa7</color>
+    <color name="Transparent">#00000000</color>
+    <color name="Gray">#9D9D9D</color>
+    <color name="Gray2">#e1e1e1</color>
+    <color name="LightGray">#E0E0E0</color>
+    <color name="LightBlue">#5ABEFF</color>
+    <color name="DarkBlue">#0D47A1</color>
+    <color name="Gray1">#BDBDBD</color>
+    <color name="Yellow">#FBC02D</color>
+    <color name="LightYellow">#FFF59D</color>
+
+    <color name="Red">#D32F2F</color>
+    <color name="SecondaryRed">#E53935</color>
+    <color name="RedTinted">#E57373</color>
+<!--
+    <color name="AquaGreen">#00694C</color>
+-->
+    <color name="AquaGreen">#212121</color>
+    <color name="AquaGreenLight">#424242</color>
+    <color name="AquaGreenLightTinted">#616161</color>
+<!--    <color name="AquaGreenLight">#4BC2A1</color>
+    <color name="AquaGreenLightTinted">#93C0B3</color>-->
+</resources>
+
+<!-- F24C4C -->

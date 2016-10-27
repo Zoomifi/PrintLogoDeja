@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp">
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.25"
+        android:text="@string/blank"
+        android:textSize="14sp"
+        android:textColor="@color/Black"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/blank"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:textColor="@color/Black"/>
+
+    <TextView
+        android:id="@+id/first_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/blank"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:textColor="@color/Black"/>
+
+    <TextView
+        android:id="@+id/last_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/blank"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:textColor="@color/Black"/>
+
+    <TextView
+        android:id="@+id/email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/blank"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:textColor="@color/Black"/>
+
+    <TextView
+        android:id="@+id/phoneNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/blank"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:textColor="@color/Black"/>
+
+</LinearLayout>

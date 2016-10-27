@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/button"
+    android:layout_width="match_parent"
+    android:layout_height="200dp">
+
+    <TextView
+        android:id="@+id/ipeName"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="IPE Name"
+        android:textSize="20sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/aqua_green_button"
+        android:layout_margin="8dp"
+        android:gravity="center"
+        android:minLines="1"
+        android:maxLines="3"
+        android:padding="5dp"/>
+
+</RelativeLayout>

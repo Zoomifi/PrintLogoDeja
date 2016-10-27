@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SettingsActivity2">
+
+    <RelativeLayout
+        android:id="@+id/buttonlayout"
+        android:layout_below="@+id/actionbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:gravity="left">
+
+        <Button
+            android:id="@+id/customizebutton"
+            android:layout_width="200dp"
+            android:layout_height="120dp"
+            android:text="Customize Shortcuts"
+            android:textColor="@color/White"
+            android:textSize="30dp"
+            android:background="@drawable/aqua_green_button"
+            android:layout_margin="5dp"
+            />
+
+        <Button
+            android:id="@+id/launchbutton"
+            android:layout_toRightOf="@+id/customizebutton"
+            android:layout_width="200dp"
+            android:layout_height="120dp"
+            android:text="Launch \n App"
+            android:textSize="30dp"
+            android:textColor="@color/White"
+            android:background="@drawable/aqua_green_button"
+            android:layout_margin="5dp"
+            />
+
+        <Button
+            android:id="@+id/homescreeneasy"
+            android:layout_toLeftOf="@+id/homescreenquick"
+            android:layout_width="200dp"
+            android:layout_height="120dp"
+            android:text="Mode: \n Register Plan"
+            android:textColor="@color/White"
+            android:textSize="25dp"
+            android:background="@drawable/aqua_green_button"
+            android:layout_margin="5dp"
+            />
+
+        <Button
+            android:id="@+id/homescreenquick"
+            android:layout_alignParentRight="true"
+            android:layout_width="200dp"
+            android:layout_height="120dp"
+            android:text="Mode: \n Terminal Plan"
+            android:textSize="25dp"
+            android:textColor="@color/White"
+            android:background="@drawable/aqua_green_button"
+            android:layout_margin="5dp"
+            />
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/switchlayout"
+        android:layout_below="@+id/buttonlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginTop="20dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Quantity Selection (On/Off)"
+            android:textSize="22sp"
+            android:textColor="@color/Black"
+            android:paddingRight="20dp"/>
+
+        <Switch
+            android:id="@+id/mySwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:thumb="@drawable/thumb"
+            android:track="@drawable/track"
+            android:layout_marginTop="5dp"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/cashswitch"
+        android:layout_below="@+id/switchlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginTop="20dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Instant Cash Checkout (On/Off)"
+            android:textSize="22sp"
+            android:textColor="@color/Black"
+            android:paddingRight="20dp"/>
+
+        <Switch
+            android:id="@+id/myCashSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:thumb="@drawable/thumb"
+            android:track="@drawable/track"
+            android:layout_marginTop="5dp"
+            />
+
+    </LinearLayout>
+    <!--<LinearLayout
+        android:id="@+id/timeoutlayout"
+        android:layout_below="@+id/switchlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginTop="15dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enable timeout after inactivity (On/Off)"
+            android:textSize="22sp"
+            android:textColor="@color/Black"
+            android:paddingRight="20dp"/>
+
+        <Switch
+            android:id="@+id/timeoutswitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:thumb="@drawable/thumb"
+            android:track="@drawable/track"
+            android:layout_marginTop="5dp"
+            />
+
+    </LinearLayout>-->
+    <LinearLayout
+        android:id="@+id/receiptlayout"
+        android:layout_below="@+id/cashswitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginTop="15dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Print Line Items on Receipt:"
+            android:textSize="22sp"
+            android:textColor="@color/Black"
+            android:paddingRight="20dp"/>
+
+        <Switch
+            android:id="@+id/receiptswitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:thumb="@drawable/thumb"
+            android:track="@drawable/track"
+            android:layout_marginTop="5dp"
+            />
+
+    </LinearLayout>
+<!--    <LinearLayout
+        android:layout_below="@+id/receiptlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:id="@+id/organizationNameTextView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="How many seconds before the App resets?"
+            android:textSize="22sp"
+            android:textColor="@color/Black"
+            android:paddingLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="15dp"/>
+
+        <Button
+            android:id="@+id/secondsbutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="60"
+            android:textColor="@color/White"
+            android:textSize="25dp"
+            android:background="@drawable/aqua_green_button"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            />
+    </LinearLayout>-->
+
+    <Button
+        android:id="@+id/gobackbutton"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Go Back"
+        android:textSize="20sp"
+        android:textColor="@color/White"
+        android:textStyle="bold"
+        android:background="@drawable/red_button"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        />
+    <FrameLayout
+        android:id="@+id/full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
+</RelativeLayout>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="@color/Black">
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:padding="10dp"
+        android:background="@color/White">
+        <LinearLayout
+            android:id="@+id/header_layout"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:weightSum="12"
+            android:minHeight="50dp"
+            android:layout_height="wrap_content">
+        <RelativeLayout
+            android:id="@+id/action_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            >
+
+            <Button
+                android:id="@+id/void_button"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="VOID ORDER"
+                android:textSize="16sp"
+                android:textColor="@color/White"
+                android:background="@drawable/red_button"
+                android:layout_margin="10dp"/>
+            </RelativeLayout>
+
+            <LinearLayout
+            android:id="@+id/header_layout1"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            >
+
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Order Created:"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:gravity="left"
+                android:minLines="1"
+                android:maxLines="1"
+                />
+            <TextView
+                android:id="@+id/order_created"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:gravity="left"
+                android:minLines="1"
+                android:maxLines="1"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+        android:id="@+id/header_layout2"
+        android:layout_below="@+id/header_layout1"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:weightSum="12"
+        >
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/header_layout3"
+            android:layout_below="@+id/header_layout1"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            >
+            <TextView
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:text="Order Total:"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:gravity="left"
+                android:minLines="1"
+                android:maxLines="1"
+                />
+            <TextView
+                android:id="@+id/order_total"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:gravity="left"
+                android:minLines="1"
+                android:maxLines="1"
+                />
+
+
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Void?:"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:gravity="left"
+                android:minLines="1"
+                android:maxLines="1"
+                />
+            <TextView
+                android:id="@+id/order_void"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="20sp"
+                android:textColor="@color/Red"
+                android:gravity="left"
+                android:minLines="1"
+                android:maxLines="1"
+                />
+
+        </LinearLayout>
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/shifttext"
+            android:layout_below="@+id/header_layout"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:weightSum="12"
+            android:minHeight="50dp"
+            android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/text1"
+                        android:layout_width="0dp"
+                        android:layout_weight="3.5"
+                        android:layout_height="wrap_content"
+                        android:text="Name"
+                        android:textSize="20sp"
+                        android:textColor="#000000"
+                        android:gravity="left"
+                        android:minLines="1"
+                        android:maxLines="1"
+                        />
+                    <TextView
+                        android:id="@+id/text2"
+                        android:layout_width="0dp"
+                        android:layout_weight="1.5"
+                        android:layout_height="wrap_content"
+                        android:gravity="left"
+                        android:text="Price"
+                        android:textSize="20sp"
+                        android:textColor="#000000"
+                        android:minLines="1"
+                        android:maxLines="1"
+                        />
+                    <TextView
+                        android:id="@+id/text3"
+                        android:layout_width="0dp"
+                        android:layout_weight="4"
+                        android:layout_height="wrap_content"
+                        android:gravity="left"
+                        android:text="Added"
+                        android:textSize="20sp"
+                        android:textColor="#000000"
+                        android:minLines="1"
+                        android:maxLines="1"
+                        />
+                    <TextView
+                        android:id="@+id/text4"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:gravity="left"
+                        android:text="Void"
+                        android:textSize="20sp"
+                        android:textColor="#000000"
+                        android:minLines="1"
+                        android:maxLines="1"
+                        />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/void_order_buttons"
+            android:layout_below="@+id/shifttext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/void_order_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textSize="16sp"
+                android:textColor="@color/Black"
+                android:background="@drawable/white_button"
+                android:layout_margin="10dp"/>
+
+            <Button
+                android:id="@+id/void_order_confirm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Confirm Void Order"
+                android:textSize="16sp"
+                android:textColor="@color/White"
+                android:background="@drawable/aqua_green_button"
+                android:layout_margin="10dp"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/close_order_buttons"
+            android:layout_below="@+id/void_order_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/close_order_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/Cancel"
+                android:textSize="16sp"
+                android:textColor="@color/Black"
+                android:background="@drawable/white_button"
+                android:layout_margin="10dp"/>
+
+            <Button
+                android:id="@+id/close_order_confirm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Confirm Close Order"
+                android:textSize="16sp"
+                android:textColor="@color/White"
+                android:background="@drawable/aqua_green_button"
+                android:layout_margin="10dp"/>
+
+        </LinearLayout>
+        <View
+            android:id="@+id/line1"
+            android:layout_below="@+id/close_order_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="#000000" />
+        <LinearLayout
+            android:id="@+id/void_buttons"
+            android:layout_below="@+id/line1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/void_item_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/Cancel"
+                android:textSize="16sp"
+                android:textColor="@color/Black"
+                android:background="@drawable/white_button"
+                android:layout_margin="10dp"/>
+
+            <Button
+                android:id="@+id/void_item_confirm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Confirm Void Item"
+                android:textSize="16sp"
+                android:textColor="@color/White"
+                android:background="@drawable/aqua_green_button"
+                android:layout_margin="10dp"/>
+
+        </LinearLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/shift_recycler"
+            android:layout_below="@+id/void_buttons"
+            android:layout_above="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    <View
+        android:id="@+id/line"
+        android:layout_above="@+id/bottombuttons"
+        android:layout_width="match_parent"
+        android:layout_height="0.75dp"
+        android:background="@color/Black"/>
+
+    <LinearLayout
+        android:id="@+id/bottombuttons"
+        android:layout_above="@+id/bottomline"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:weightSum="12"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/customDialogSubmitButton"
+            android:layout_width="0dp"
+            android:layout_weight="4"
+            android:layout_height="wrap_content"
+            android:text="Exit"
+            android:textSize="16sp"
+            android:textColor="@color/Black"
+            android:background="@drawable/white_button"
+            android:layout_margin="10dp"/>
+
+
+
+    </LinearLayout>
+        <View
+            android:id="@+id/bottomline"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="0.75dp"
+            android:background="@color/Black"/>
+    </RelativeLayout>
+
+</RelativeLayout>
