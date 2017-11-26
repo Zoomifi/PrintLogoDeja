@@ -102,7 +102,7 @@ public class DoorActivity extends Activity implements View.OnClickListener, Cust
 
     private static final NumberFormat mCurrencyFormat = DecimalFormat.getCurrencyInstance(Locale.US);
 
-    private String mercID = "";
+    private String          mercID = "";
     private String recentItem;
     private String tenderID;
     private String mOrderId;
@@ -243,7 +243,7 @@ public class DoorActivity extends Activity implements View.OnClickListener, Cust
                     buttons[i].setBackgroundResource(zomifi.op27no2.printlogo.R.drawable.red_button);
                  //   buttons[i].setText(prefs.getString(3 + "_" + currentPage + "button" + (i + 1) + "_name", "Add from Settings") + " x" + lineItems.get(j).get(2) + "\n" + prefs.getString(3 + "_" + currentPage + "button" + (i + 1) + "_price", ""));
                     buttons[i].setText(prefs.getString(id + "_name", "Add from Settings") + " x" + lineItems.get(j).get(2) + "\n" + formatPrice(prefs.getString(id + "_price" + 3, "")));
-                    total = total+(mult* Long.parseLong(prefs.getString(id + "_price" + 3, "")));
+                    total = total+(mult*Long.parseLong(prefs.getString(id + "_price" + 3, "")));
                     break;
                 }
             }
@@ -517,7 +517,7 @@ public class DoorActivity extends Activity implements View.OnClickListener, Cust
     }
 
     @Override
-    public void setPrice(String orderID, int mode, long price, Boolean isPayment)
+    public void setPrice(String orderID, String name, int mode, long price, Boolean isPayment)
     {
         if(!isPayment) {
             System.out.println("setPrice listener" + PRICE_STRING);
@@ -627,16 +627,17 @@ public class DoorActivity extends Activity implements View.OnClickListener, Cust
                     for(int j=0; j<lineItems.get(i).get(2); j++) {
                         String id = prefs.getString(3 + "_" + lineItems.get(i).get(0) + "button" + lineItems.get(i).get(1) + "_id", "error");
                         String name = prefs.getString(id + "_name", "");
+                        String category = prefs.getString(id + "_category", "");
                         Long price = Long.parseLong(prefs.getString(id + "_price" + 3, "0"));
                         mTotal = mTotal + price;
 
-                        OrderItem mOrderItem = new OrderItem(name, price, mTimestamp, 0l, false);
+                        OrderItem mOrderItem = new OrderItem(name, category, price, mTimestamp, 0l,0l, false, false, false, false);
                         items.put("item" + counter, mOrderItem);
                         counter++;
                     }
                 }
                 if(customItemPresent){
-                    OrderItem mOrderItem = new OrderItem("Custom", donationAmount, mTimestamp, 0l, false);
+                    OrderItem mOrderItem = new OrderItem("Custom", "Custom", donationAmount, mTimestamp, 0l,0l, false, false, false, false);
                     items.put("item"+counter, mOrderItem);
                     mTotal = mTotal + donationAmount;
                 }
@@ -722,7 +723,7 @@ public class DoorActivity extends Activity implements View.OnClickListener, Cust
                 registerReceiptRegistration();
                 PrintBuilder mBuilder = new PrintBuilder();
                 mBuilder.initialize(mContext,3);
-                mBuilder.PrintLineItemsReceipt(lineItems, mTotal);
+                mBuilder.PrintLineItemsReceipt(lineItems, mTotal, false);
 
 
                 PrintJob pj = new StaticBillPrintJob.Builder().order(order).build();
@@ -734,7 +735,7 @@ public class DoorActivity extends Activity implements View.OnClickListener, Cust
             }
             else{
                 // not enough cash received
-                Toast.makeText(DoorActivity.this, "Payment (" + formatPrice(mPayment.toString()) + ") must be greater than order total(" + formatPrice(mTotal.toString()) + ")", Toast.LENGTH_LONG).show();
+                Toast.makeText(DoorActivity.this, "Payment ("+formatPrice(mPayment.toString())+") must be greater than order total("+formatPrice(mTotal.toString())+")", Toast.LENGTH_LONG).show();
             }
 
      /*       if(mPayment >= order.getTotal()){

@@ -34,7 +34,7 @@ public class apiHelper {
     private SharedPreferences prefs;
     public OkHttpClient client = new OkHttpClient();
     private MerchantConnector merchantConnector;
-    private String mercID;
+    private String  mercID;
 
     private apiHelper() {
 

@@ -18,8 +18,8 @@ android {
         applicationId "zomifi.op27no2.printlogo"
         minSdkVersion 17
         targetSdkVersion 22
-        versionCode 36
-        versionName "1.37"
+        versionCode 69
+        versionName "1.81"
         multiDexEnabled true
 
     }
@@ -47,10 +47,19 @@ dependencies {
     compile 'com.clover.sdk:clover-android-sdk:latest.release'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup.okhttp3:okhttp:3.2.0'
-    compile 'com.google.firebase:firebase-core:9.4.0'
-    compile 'com.google.firebase:firebase-database:9.4.0'
+   // compile 'com.google.firebase:firebase-core:9.4.0'
+   // compile 'com.google.firebase:firebase-database:9.4.0'
+    compile 'com.google.firebase:firebase-core:11.6.0'
+    compile 'com.google.firebase:firebase-database:11.6.0'
+
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.firebase:firebase-client-android:2.5.0+'
+
+
+    //snappy db for key-value pair storage
+    compile 'com.snappydb:snappydb-lib:0.5.2'
+    compile 'com.esotericsoftware.kryo:kryo:2.24.0'
+
 
     // loader library
     compile 'com.wang.avi:library:1.0.5'
@@ -58,8 +67,9 @@ dependencies {
     // end loader library
     compile 'com.firebaseui:firebase-ui-database:0.4.2'
 
-    //  compile 'com.google.android.gms:play-services:9.4.0'
-    //  compile 'com.android.support:multidex:1.0.1'
+
+   // compile 'com.google.android.gms:play-services:9.4.0'
+   // compile 'com.android.support:multidex:1.0.1'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
         transitive = true;
     }

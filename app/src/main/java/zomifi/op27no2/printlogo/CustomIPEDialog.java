@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -62,7 +63,7 @@ public class CustomIPEDialog extends Dialog
     private TimePicker timePicker;
     private static Long pickerTime;
     private static LinearLayout bottomButtons;
-    private String orderId = "";
+    private String  orderId = "";
 
     private TextView wordText;
 
@@ -87,6 +88,7 @@ public class CustomIPEDialog extends Dialog
     private DatabaseReference myShiftRef;
     private static String lastClickedShift;
     private static String lastClickedPosition;
+    private static String nameOnOpen;
     private static LinearLayoutManager mManager;
     private LinearLayout shiftText;
 
@@ -139,16 +141,26 @@ public class CustomIPEDialog extends Dialog
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isNew) {
+                getNames(edittexts[0].getText().toString());
+
+/*                if(isNew) {
                     // create new IPE
-                    mHelper.createEmployee(edittexts[0].getText().toString(), edittexts[1].getText().toString(), mStatusSpinner.getSelectedItem().toString(), edittexts[2].getText().toString(), edittexts[3].getText().toString(), mStateSpinner.getSelectedItem().toString(), edittexts[4].getText().toString(), edittexts[5].getText().toString(), edittexts[7].getText().toString(),edittexts[8].getText().toString(),edittexts[9].getText().toString(), edittexts[10].getText().toString(), edittexts[6].getText().toString(), false);
+                    //Boolean nameTaken = mHelper.checkIPEName(edittexts[0].getText().toString());
+                    //mHelper.createEmployee(edittexts[0].getText().toString(), edittexts[1].getText().toString(), mStatusSpinner.getSelectedItem().toString(), edittexts[2].getText().toString(), edittexts[3].getText().toString(), mStateSpinner.getSelectedItem().toString(), edittexts[4].getText().toString(), edittexts[5].getText().toString(), edittexts[7].getText().toString(),edittexts[8].getText().toString(),edittexts[9].getText().toString(), edittexts[10].getText().toString(), edittexts[6].getText().toString(), false);
+
                 }
                 else{
                     //update IPE
                     mHelper.updateEmployee(employeeUniqueID, edittexts[0].getText().toString(), edittexts[1].getText().toString(), mStatusSpinner.getSelectedItem().toString(), edittexts[2].getText().toString(), edittexts[3].getText().toString(), mStateSpinner.getSelectedItem().toString(), edittexts[4].getText().toString(), edittexts[5].getText().toString(),edittexts[7].getText().toString(),edittexts[8].getText().toString(),edittexts[9].getText().toString(), edittexts[10].getText().toString(),  edittexts[6].getText().toString(), false);
-                }
+                    if(mAdapter !=null) {
+                        mAdapter.cleanup();
+                    }
+                    final RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                    recycler.setAdapter(null);
+                    dismiss();
+                }*/
 
-                dismiss();
+
             }
         });
         doneButton = (Button) findViewById(R.id.done_button);
@@ -183,6 +195,11 @@ public class CustomIPEDialog extends Dialog
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(mAdapter !=null) {
+                    mAdapter.cleanup();
+                }
+                final RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                recycler.setAdapter(null);
                 dismiss();
             }
         });
@@ -201,6 +218,7 @@ public class CustomIPEDialog extends Dialog
                                 }
                                 selectValue(mStatusSpinner,mEmployee.gesStatus());
                                 selectValue(mStateSpinner, mEmployee.gesAddressState());
+                                nameOnOpen = edittexts[0].getText().toString();
 
                             }
 
@@ -273,11 +291,13 @@ public class CustomIPEDialog extends Dialog
 
         public void setText1(String name) {
             TextView field = (TextView) mView.findViewById(R.id.text1);
+            field.setTextColor(Color.BLACK);
             field.setText(name);
         }
 
         public void setText2(String text) {
             TextView field = (TextView) mView.findViewById(R.id.text2);
+            field.setTextColor(Color.BLACK);
             field.setText(text);
         }
         public void setButtonText(String text) {
@@ -303,12 +323,24 @@ public class CustomIPEDialog extends Dialog
                 pickLayout.setVisibility(View.VISIBLE);
                 cancelButton.setVisibility(View.GONE);
                 submitButton.setVisibility(View.GONE);
+                if(tv1.getCurrentTextColor() == Color.BLACK) {
+                    tv1.setTextColor(Color.RED);
+                }
+                else{
+                    tv1.setTextColor(Color.BLACK);
+                }
                 lastClickedPosition = "left";
             }
             else if(v.getId() == tv2.getId()){
                 pickLayout.setVisibility(View.VISIBLE);
                 cancelButton.setVisibility(View.GONE);
                 submitButton.setVisibility(View.GONE);
+                if(tv2.getCurrentTextColor() == Color.BLACK) {
+                    tv2.setTextColor(Color.RED);
+                }
+                else{
+                    tv2.setTextColor(Color.BLACK);
+                }
                 lastClickedPosition = "right";
             }
             else{
@@ -330,5 +362,67 @@ public class CustomIPEDialog extends Dialog
         }
     }
 
+    private void getNames(final String name) {
+
+        mHelper.retrieveIPENames(new onGetEmployeeNames() {
+            @Override
+            public void onStart() {
+                //DO SOME THING WHEN START GET DATA HERE
+            }
+
+            @Override
+            public void onSuccess(ArrayList<String> data) {
+
+                    if(isNew) {
+                        System.out.println("ipe is new");
+                        if(data.contains(name)) {
+                            //POP UP name already taken
+                            CustomNameTakenDialog customDialog = new CustomNameTakenDialog(context);
+                            customDialog.setCancelable(false);
+                            customDialog.show();
+                        }else {
+                            //new IPE
+                            mHelper.createEmployee(edittexts[0].getText().toString(), edittexts[1].getText().toString(), mStatusSpinner.getSelectedItem().toString(), edittexts[2].getText().toString(), edittexts[3].getText().toString(), mStateSpinner.getSelectedItem().toString(), edittexts[4].getText().toString(), edittexts[5].getText().toString(), edittexts[7].getText().toString(), edittexts[8].getText().toString(), edittexts[9].getText().toString(), edittexts[10].getText().toString(), edittexts[6].getText().toString(), false);
+                            if(mAdapter !=null) {
+                                mAdapter.cleanup();
+                            }
+                            final RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                            recycler.setAdapter(null);
+                            dismiss();
+                        }
+
+                    }
+                    else {
+                        System.out.println("ipe is not new");
+                        System.out.println("name:" +name);
+                        System.out.println("name on open:" +nameOnOpen);
+                            if (!name.equals(nameOnOpen) && data.contains(name)) {
+                                System.out.println("name taken");
+                                    //POP UP name already taken
+                                    CustomNameTakenDialog customDialog = new CustomNameTakenDialog(context);
+                                    customDialog.setCancelable(false);
+                                    customDialog.show();
+                            } else {
+                                System.out.println("update name");
+                                //update IPE
+                                    mHelper.updateEmployee(employeeUniqueID, edittexts[0].getText().toString(), edittexts[1].getText().toString(), mStatusSpinner.getSelectedItem().toString(), edittexts[2].getText().toString(), edittexts[3].getText().toString(), mStateSpinner.getSelectedItem().toString(), edittexts[4].getText().toString(), edittexts[5].getText().toString(), edittexts[7].getText().toString(), edittexts[8].getText().toString(), edittexts[9].getText().toString(), edittexts[10].getText().toString(), edittexts[6].getText().toString(), false);
+                                    if(mAdapter !=null) {
+                                        mAdapter.cleanup();
+                                    }
+                                    final RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                                    recycler.setAdapter(null);
+                                    dismiss();
+                            }
+                        }
+            }
+
+
+            @Override
+            public void onFailed(DatabaseError databaseError) {
+                //DO SOME THING WHEN GET DATA FAILED HERE
+                System.out.println("failed to retrieve employees");
+            }
+        });
+    }
 
 }

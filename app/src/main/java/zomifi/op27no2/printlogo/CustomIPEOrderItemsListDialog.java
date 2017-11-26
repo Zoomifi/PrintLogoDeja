@@ -3,7 +3,6 @@ package zomifi.op27no2.printlogo;
 import android.accounts.Account;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -31,6 +30,7 @@ import com.clover.sdk.v1.BindingException;
 import com.clover.sdk.v1.ClientException;
 import com.clover.sdk.v1.ServiceConnector;
 import com.clover.sdk.v1.ServiceException;
+import com.clover.sdk.v1.printer.CashDrawer;
 import com.clover.sdk.v1.printer.ReceiptRegistrationConnector;
 import com.clover.sdk.v1.printer.job.PrintJob;
 import com.clover.sdk.v1.printer.job.StaticBillPrintJob;
@@ -50,15 +50,18 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Currency;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Andrew on 3/4/2016.
  * This code is written for Scrap Workouts LLC.
  */
-public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClickListener, CustomPriceEnteredListener,CustomManagerListener
+public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClickListener, CustomPriceEnteredListener, CustomDiscountListener , CustomManagerListener
 {
     private SharedPreferences prefs;
     private SharedPreferences.Editor edt;
@@ -72,7 +75,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
 
     private static Context context;
     private static LinearLayout bottomButtons;
-    private String orderId = "";
+    private String  orderId = "";
 
     private TextView wordText;
 
@@ -87,6 +90,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
     private DatabaseReference myRef;
     private ValueEventListener myEmployeeListener;
     private ChildEventListener mChildEventListener;
+    private ChildEventListener mChildEventListener2;
 
     EditText edittexts[] = new EditText[8];
     private Spinner mStateSpinner;
@@ -97,6 +101,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
     private static FirebaseRecyclerAdapter mAdapter;
     private DatabaseReference myItemsRef;
     private Query mOrderQuery;
+    private Query mOrderQuery2;
     private static String lastClickedShift;
     private static String lastClickedPosition;
     private String mercID;
@@ -108,10 +113,12 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
     private Long oTotal;
     private TextView orderBalance;
     private Long oBalance;
+    private String oIPE;
     private Boolean oVoided;
     private TextView orderIPE;
     private TextView orderStatus;
     private TextView orderVoided;
+    private TextView shiftTotal;
 
     private static LinearLayout voidLayout;
     private static LinearLayout voidOrderLayout;
@@ -133,8 +140,13 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
     Button priceButtons[] = new Button[5];
     private Long mPayment;
     private Long mTotal = 0l;
+    private Long totalDuration = 0l;
+    private Boolean fromIPEScreen;
+    private static CustomDiscountListener mListener;
+    private Boolean loaded;
+    CustomManagerListener mManagerListener;
 
-    public CustomIPEOrderItemsListDialog(Context context, String employeeUniqueID, String orderUniqueID)
+    public CustomIPEOrderItemsListDialog(Context context, String employeeUniqueID, String orderUniqueID, Boolean fromIPEScreen)
     {
         //if coming from order list, pass an order push ID to get a specific order
         //otherwise, pass orderUniqueID as null to load the most recent order (e.g. from 'view tab')
@@ -142,6 +154,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
         this.context = context;
         this.employeeUniqueID = employeeUniqueID;
         this.orderUniqueID = orderUniqueID;
+        this.fromIPEScreen = fromIPEScreen;
     }
 
     @Override
@@ -153,9 +166,13 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
         setContentView(R.layout.dialog_ipeitemlist);
         prefs = context.getSharedPreferences("PREFS", Context.MODE_PRIVATE);
         edt = prefs.edit();
+        loaded = false;
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         mercID = prefs.getString("mercID", "");
         thisRef = database.getReference().child(mercID);
+        totalDuration = 0l;
+        mListener = (CustomDiscountListener) this;
+        mManagerListener = this;
 
         getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         mHelper = new FirebaseHelper(context);
@@ -171,6 +188,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
         orderIPE = (TextView) findViewById(R.id.order_ipe);
         orderStatus = (TextView) findViewById(R.id.order_status);
         orderVoided = (TextView) findViewById(R.id.order_void);
+        shiftTotal = (TextView) findViewById(R.id.shift_total);
         bottomButtons = (LinearLayout) findViewById(R.id.bottombuttons);
 
         showOrderVoidButton = (Button) findViewById(R.id.void_button);
@@ -196,6 +214,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
             @Override
             public void onClick(View v) {
             showPayment();
+            CashDrawer.open(context, account);
 
             }
         });
@@ -208,48 +227,45 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                 if(mAdapter !=null) {
                     mAdapter.cleanup();
                 }
+                final RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                recycler.setAdapter(null);
                 dismiss();
             }
         });
-        clocknavButton = (Button) findViewById(R.id.clocknav_button);
-        clocknavButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent myIntent = new Intent(context, ClockActivity.class);
-                context.startActivity(myIntent);
-            }
-        });
+
         printButton = (Button) findViewById(R.id.print_button);
         printButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<OrderItem> mItems = new ArrayList<OrderItem>();
-                for (int i = 0; i < mAdapter.getItemCount(); i++){
-                    OrderItem mOrderItem = (OrderItem) mAdapter.getItem(i);
-                    mTotal = mTotal + mOrderItem.gesPrice();
-                    mItems.add(mOrderItem);
+                if(loaded) {
+
+                    ArrayList<OrderItem> mItems = new ArrayList<OrderItem>();
+                    for (int i = 0; i < mAdapter.getItemCount(); i++) {
+                        OrderItem mOrderItem = (OrderItem) mAdapter.getItem(i);
+                        mTotal = mTotal + mOrderItem.gesPrice();
+                        mItems.add(mOrderItem);
+                    }
+
+
+                    registerReceiptRegistration();
+                    PrintBuilder mBuilder = new PrintBuilder();
+                    mBuilder.initialize(context, 1);
+                    mBuilder.PrintOrderItemsReceipt(mItems, oBalance, oTotal, oVoided, oIPE, formatTime(totalDuration));
+
+
+                    Order order = null;
+                    try {
+                        order = new PrintAsync().execute().get();
+                        PrintJob pj = new StaticBillPrintJob.Builder().order(order).build();
+                        pj.print(CustomIPEOrderItemsListDialog.context, account);
+                        delayUnregister();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+
                 }
-
-
-                registerReceiptRegistration();
-                PrintBuilder mBuilder = new PrintBuilder();
-                mBuilder.initialize(context, 1);
-                mBuilder.PrintOrderItemsReceipt(mItems, oBalance, oTotal, oVoided);
-
-
-                Order order = null;
-                try {
-                    order = new PrintAsync().execute().get();
-                    PrintJob pj = new StaticBillPrintJob.Builder().order(order).build();
-                    pj.print(CustomIPEOrderItemsListDialog.context, account);
-                    delayUnregister();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-
-
             }
         });
 
@@ -272,6 +288,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
             @Override
             public void onClick(View v) {
                 mHelper.voidIPEOrder(orderUniqueID);
+                mHelper.closeIPEOrder(orderUniqueID);
                 hideOrderVoid();
             }
         });
@@ -292,8 +309,20 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
         closeOrderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mHelper.closeIPEOrder(orderUniqueID);
-                hideOrderClose();
+
+                if(oBalance > 0){
+                    CustomManagerDialog managerDialog = new CustomManagerDialog(context, false);
+                    managerDialog.setCustomManagerListener(mManagerListener);
+                    managerDialog.setButtonID(closeOrderButton.getId());
+                    managerDialog.show();
+                }
+                else{
+                    mHelper.closeIPEOrder(orderUniqueID);
+                    DatabaseReference eRef = thisRef.child("Employees").child(employeeUniqueID);
+                    Long time = Calendar.getInstance().getTimeInMillis();
+                    mHelper.clockOut(eRef, employeeUniqueID, time);
+                    hideOrderClose();
+                }
             }
         });
         cancelCloseButton.setOnClickListener(new View.OnClickListener() {
@@ -315,13 +344,15 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
         DisplayMetrics metrics = this.context.getResources().getDisplayMetrics();
         int width = metrics.widthPixels;
         int height = metrics.heightPixels;
-        getWindow().setLayout((6 * width) / 7, (6 * height) / 7);
+        getWindow().setLayout((6 * width) / 7, (8 * height) / 9);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         if(!orderUniqueID.equals("")) {
             mHelper.updateOrderTotal(thisRef.child("IPEOrders").child(orderUniqueID));
             setupTextListeners();
         }
+        setupClockListeners();
+
 
         Query recentOrderQuery = null;
         Query preQuery = null;
@@ -415,7 +446,10 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                         System.out.println("order ref: " + myOrderRef[0]);
 
                         myItemsRef = myOrderRef[0].child("items");
+
+
                         loadList();
+
                     }
 
                     @Override
@@ -441,6 +475,9 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                 itemViewHolder.setText1(mOrderItem.gesName());
                 itemViewHolder.setText2(formatPrice(mOrderItem.gesPrice()));
                 itemViewHolder.setText3(time);
+                if(mOrderItem.gesHasDiscount() !=null && mOrderItem.gesHasDiscount()){
+                    itemViewHolder.setTextDiscount(formatPrice(mOrderItem.gesDiscount()));
+                }
                 if(mOrderItem.gesVoided()){
                     itemViewHolder.setText4("VOID");
                 }
@@ -518,10 +555,16 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
         }
     }
 
+    @Override
+    public void setDiscount(long discount, DatabaseReference itemRef, long price, long pDiscount) {
+        mHelper.setIPELineItemDiscount(discount, itemRef, price, pDiscount);
+    }
 
-    public static class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CustomManagerListener {
+
+    public static class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CustomManagerListener{
         View mView;
         public TextView tv1;
+        public TextView tvd;
         public TextView tv2;
         public TextView tv3;
         public TextView tv4;
@@ -536,6 +579,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
          //   myButton.setOnClickListener(this);
             tv1 = (TextView) itemView.findViewById(R.id.text1);
             tv1.setOnClickListener(this);
+            tvd = (TextView) itemView.findViewById(R.id.textDiscount);
             tv2 = (TextView) itemView.findViewById(R.id.text2);
             tv2.setOnClickListener(this);
             tv3 = (TextView) itemView.findViewById(R.id.text3);
@@ -551,7 +595,10 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
             TextView field = (TextView) mView.findViewById(R.id.text1);
             field.setText(name);
         }
-
+        public void setTextDiscount(String text) {
+            TextView field = (TextView) mView.findViewById(R.id.textDiscount);
+            field.setText(text);
+        }
         public void setText2(String text) {
             TextView field = (TextView) mView.findViewById(R.id.text2);
             field.setText(text);
@@ -576,17 +623,26 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
 
         @Override
         public void onClick(View v) {
+            System.out.println("onclick");
+
             int position = getAdapterPosition();
             mOrderItem = (OrderItem) mAdapter.getItem(position);
             myItemRef = mAdapter.getRef(position);
+            Long price = mOrderItem.gesPrice();
+            Long pDiscount = mOrderItem.gesDiscount();
 
             if(v.getId() == btn1.getId()){
                 CustomManagerDialog managerDialog = new CustomManagerDialog(context, false);
                 managerDialog.setCustomManagerListener(this);
                 managerDialog.setButtonID(btn1.getId());
                 managerDialog.show();
-            }
 
+            }else {
+                System.out.println("clicked");
+                DiscountPriceSetter discountPriceSetter = new DiscountPriceSetter(context, myItemRef, price, pDiscount);
+                discountPriceSetter.setCustomDiscountListener(mListener);
+                discountPriceSetter.show();
+            }
 
         }
 
@@ -605,6 +661,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
             public void onClick(View v) {
                 // void clicked item update order total
                 mHelper.voidIPEOrderItem(itemRef);
+
                 hideVoid();
                 System.out.println("will void item");
             }
@@ -659,6 +716,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
        mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                System.out.println("datasnapp:"+dataSnapshot);
                 // A new comment has been added, add it to the displayed list
                // IPEOrder mOrder = dataSnapshot.getChildren().iterator().next().getValue(IPEOrder.class);
                 IPEOrder mOrder = dataSnapshot.getValue(IPEOrder.class);
@@ -673,18 +731,35 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                     oBalance = mOrder.gesBalance();
                 }
                 orderIPE.setText(mOrder.gesEmployeeName());
+                oIPE = mOrder.gesEmployeeName();
+                if(mOrder.gesVoided()) {
+                    orderVoided.setText("Void");
+                    RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                    recycler.setVisibility(View.GONE);
+                    TextView mText = (TextView) findViewById(R.id.items_void);
+                    mText.setVisibility(View.VISIBLE);
+                }
+                else{
+                    orderVoided.setText("");
+                }
                 if(mOrder.gesOpen()) {
                     orderStatus.setText("Open");
                 }
                 else{
                     orderStatus.setText("Closed");
+                    RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                    if(fromIPEScreen) {
+                        recycler.setVisibility(View.GONE);
+                        orderBalance.setText("");
+                        orderCreated.setText("");
+                        orderTotal.setText("");
+                        orderVoided.setText("");
+                        orderStatus.setText("");
+                        TextView mText = (TextView) findViewById(R.id.items_void);
+                        mText.setVisibility(View.GONE);
+                    }
                 }
-                if(mOrder.gesVoided()) {
-                    orderVoided.setText("Void");
-                }
-                else{
-                    orderVoided.setText("");
-                }
+                loaded = true;
 
 
                 // ...
@@ -707,6 +782,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                     oBalance = mOrder.gesBalance();
                 }
                 orderIPE.setText(mOrder.gesEmployeeName());
+                oIPE = mOrder.gesEmployeeName();
                 if(mOrder.gesOpen()) {
                     orderStatus.setText("Open");
                 }
@@ -715,10 +791,15 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                 }
                 if(mOrder.gesVoided()) {
                     orderVoided.setText("Void");
+                    RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                    recycler.setVisibility(View.GONE);
+                    TextView mText = (TextView) findViewById(R.id.items_void);
+                    mText.setVisibility(View.VISIBLE);
                 }
                 else{
                     orderVoided.setText("");
                 }
+                loaded = true;
 
                 // ...
             }
@@ -741,16 +822,198 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
             }
         };
         mOrderQuery.addChildEventListener(mChildEventListener);
+
+
+
     }
 
-    private void removeTextListeners(){
+    private void setupClockListeners() {
+
+        mOrderQuery2 = thisRef.child("Employees").orderByKey().equalTo(employeeUniqueID);
+        System.out.println("query employee:" + mOrderQuery2);
+        mChildEventListener2 = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                // A new comment has been added, add it to the displayed list
+                // IPEOrder mOrder = dataSnapshot.getChildren().iterator().next().getValue(IPEOrder.class);
+                final Employee mEmployee = (Employee) dataSnapshot.getValue(Employee.class);
+                final String myID = mEmployee.gesUniqueID();
+                final Long time = Calendar.getInstance().getTimeInMillis();
+                final DatabaseReference employeeRef = dataSnapshot.getRef();
+
+                clocknavButton = (Button) findViewById(R.id.clocknav_button);
+                if(mEmployee.gesClocked() == true) {
+                    clocknavButton.setText("Clock Out");
+                }
+                else if(mEmployee.gesClocked() == false){
+                    clocknavButton.setText("Clock In");
+                }
+
+                clocknavButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        if(mEmployee.gesClocked() == true) {
+                            //clock employee out
+                            Long clicktime = Calendar.getInstance().getTimeInMillis();
+                            mHelper.clockOut(employeeRef, myID, clicktime);
+                        }
+                        else if(mEmployee.gesClocked() == false){
+                            //clock employee in
+                            Long clicktime = Calendar.getInstance().getTimeInMillis();
+                            mHelper.clockIn(employeeRef, myID, clicktime);
+                        }
+
+
+                    }
+                });
+
+                //get most recent instance of 10am in millis
+                Long now = System.currentTimeMillis();
+                Long duration = 0l;
+                Long tenam;
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, 10);
+                if(now < calendar.getTimeInMillis()){
+                    calendar.add(Calendar.DAY_OF_MONTH, -1);
+                    tenam = calendar.getTimeInMillis();
+                }
+                else{
+                    tenam = calendar.getTimeInMillis();
+                }
+
+
+                Map<String, Shift> mShifts = mEmployee.gesShifts();
+                if(mShifts !=null) {
+                    for (Shift shift : mShifts.values()) {
+                        shift.gesClockIn();
+                        if (shift.gesClockIn() > tenam) {
+                            if (shift.gesClockOut() != null && shift.gesClockOut() != 0) {
+
+                                System.out.println("clockin:" + formatDate(shift.gesClockIn()) + " clockout:" + formatDate(shift.gesClockOut()) + "duration: " + formatTime(shift.gesClockOut() - shift.gesClockIn()));
+                                duration = duration + (shift.gesClockOut() - shift.gesClockIn());
+                            } else {
+                                System.out.println("clockin:" + shift.gesClockIn() + " now:" + now);
+                                duration = duration + (now - shift.gesClockIn());
+                            }
+                        }
+                    }
+                }
+
+                totalDuration = duration;
+                shiftTotal.setText(formatTime(totalDuration));
+                System.out.println("total duration:"+totalDuration);
+
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+
+                final Employee mEmployee = (Employee) dataSnapshot.getValue(Employee.class);
+                final String myID = mEmployee.gesUniqueID();
+                final Long time = Calendar.getInstance().getTimeInMillis();
+                final DatabaseReference employeeRef = dataSnapshot.getRef();
+
+                clocknavButton = (Button) findViewById(R.id.clocknav_button);
+                if(mEmployee.gesClocked() == true) {
+                    clocknavButton.setText("Clock Out");
+                }
+                else if(mEmployee.gesClocked() == false){
+                    clocknavButton.setText("Clock In");
+                }
+
+
+                clocknavButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        if(mEmployee.gesClocked() == true) {
+                            //clock employee out
+                            Long clicktime = Calendar.getInstance().getTimeInMillis();
+                            mHelper.clockOut(employeeRef, myID, clicktime);
+                        }
+                        else if(mEmployee.gesClocked() == false){
+                            //clock employee in
+                            Long clicktime = Calendar.getInstance().getTimeInMillis();
+                            mHelper.clockIn(employeeRef, myID, clicktime);
+                        }
+
+
+                    }
+                });
+
+                //get most recent instance of 10am in millis
+                Long now = System.currentTimeMillis();
+                Long duration = 0l;
+                Long tenam;
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, 10);
+                if(now < calendar.getTimeInMillis()){
+                    calendar.add(Calendar.DAY_OF_MONTH, -1);
+                    tenam = calendar.getTimeInMillis();
+                }
+                else{
+                    tenam = calendar.getTimeInMillis();
+                }
+
+
+                Map<String, Shift> mShifts = mEmployee.gesShifts();
+                if(mShifts !=null) {
+                    for (Shift shift : mShifts.values()) {
+                        shift.gesClockIn();
+                        if (shift.gesClockIn() > tenam) {
+                            if (shift.gesClockOut() != null && shift.gesClockOut() != 0) {
+                                System.out.println("clockin:" + formatDate(shift.gesClockIn()) + " clockout:" + formatDate(shift.gesClockOut()) + "duration: " + formatTime(shift.gesClockOut() - shift.gesClockIn()));
+                                duration = duration + (shift.gesClockOut() - shift.gesClockIn());
+                            } else {
+                                //  System.out.println("clockin:"+shift.gesClockIn() +" now:" + now + " duration: "+formatTime(now - shift.gesClockIn()));
+                                // duration = duration + (now - shift.gesClockIn());
+                            }
+                        }
+                    }
+                }
+                totalDuration = duration;
+                shiftTotal.setText(formatTime(totalDuration));
+                System.out.println("total duration:"+formatTime(totalDuration));
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("listener error :onCancelled: "+ databaseError.toException());
+                Toast.makeText(context, "Failed to load order.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+        mOrderQuery2.addChildEventListener(mChildEventListener2);
+
+
+    }
+
+        private void removeTextListeners(){
         if(mChildEventListener != null) {
             mOrderQuery.removeEventListener(mChildEventListener);
+        }
+        if(mChildEventListener2 != null) {
+            mOrderQuery2.removeEventListener(mChildEventListener2);
         }
     }
 
     @Override
-    public void setPrice(String orderID, int mode, long price, Boolean isPayment)
+    public void setPrice(String orderID,String name, int mode, long price, Boolean isPayment)
     {
         mPayment = -price;
         mHelper.addIPEPaymentItem(orderUniqueID, mPayment);
@@ -870,9 +1133,32 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
         if(resourceID == R.id.void_button) {
             showOrderVoid();
         }
+        if(resourceID == closeOrderButton.getId() ) {
+            mHelper.closeIPEOrder(orderUniqueID);
+            DatabaseReference eRef = thisRef.child("Employees").child(employeeUniqueID);
+            Long time = Calendar.getInstance().getTimeInMillis();
+            mHelper.clockOut(eRef, employeeUniqueID,time);
+            hideOrderClose();
 
+        }
     }
 
 
+    private String formatTimee(Long time){
+        return (new SimpleDateFormat("HH:mm:ss")).format(new Date(time));
+    }
 
+    public String formatTime(Long milliseconds) {
+        long seconds = (long) Math.floor(milliseconds /1000);
+
+        long s = seconds % 60;
+        long m = (seconds / 60) % 60;
+        long h = (seconds / (60 * 60)) % 24;
+        return String.format("%d:%02d:%02d", h, m, s);
+    }
+    public String formatDate(Long milliseconds) {
+        Date date = new Date(milliseconds); //Input your time in milliseconds
+        String mDate = new SimpleDateFormat("dd MMM yyyy hh:mm:ss a").format(date);
+        return mDate;
+    }
 }

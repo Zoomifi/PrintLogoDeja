@@ -20,12 +20,12 @@ import android.widget.TextView;
 
 public class CustomManagerDialog extends Dialog implements View.OnClickListener
 {
-    private Context context;
+    private Context                     context;
     private int                         buttonIndex = 0;
-    private String PRICE_STRING = "";
+    private String                      PRICE_STRING = "";
     private long                        PRICE = 0;
     public CustomManagerListener customManagerListener;
-    private String headerString = "Manager Code Required";
+    private String                      headerString = "Manager Code Required";
     private SharedPreferences prefs;
     private SharedPreferences.Editor edt;
     private Boolean fromSettings;
@@ -91,6 +91,7 @@ public class CustomManagerDialog extends Dialog implements View.OnClickListener
                     edt.commit();
 
                 }
+
                 else if(prefs.getBoolean("first_password", true) == true){
                     customManagerListener.managerCallback(resourceID);
                     dismiss();

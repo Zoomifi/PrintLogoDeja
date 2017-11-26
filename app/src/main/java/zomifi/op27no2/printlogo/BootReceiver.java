@@ -18,13 +18,14 @@ public class BootReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
             // Set the alarm here.
-            alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+         /*   alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
             intent = new Intent(context, AlarmReceiver.class);
             alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
             alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     60000,
                     AlarmManager.INTERVAL_DAY, alarmIntent);
+*/
 
         }
 

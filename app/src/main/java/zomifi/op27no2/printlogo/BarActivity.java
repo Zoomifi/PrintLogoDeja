@@ -32,8 +32,6 @@ import com.clover.sdk.v1.customer.CustomerConnector;
 import com.clover.sdk.v1.merchant.MerchantConnector;
 import com.clover.sdk.v1.printer.CashDrawer;
 import com.clover.sdk.v1.printer.ReceiptRegistrationConnector;
-import com.clover.sdk.v1.printer.job.PrintJob;
-import com.clover.sdk.v1.printer.job.StaticBillPrintJob;
 import com.clover.sdk.v3.employees.EmployeeConnector;
 import com.clover.sdk.v3.inventory.InventoryConnector;
 import com.clover.sdk.v3.order.LineItem;
@@ -400,17 +398,20 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
         {
             if(!building) {
               //  building = true;
-                LineItemPriceSetter lineItemPriceSetter = new LineItemPriceSetter(this,2, false);
+                mTotal = 0l;
+                new ChangeAsyncTask().execute();
+
+                /*LineItemPriceSetter lineItemPriceSetter = new LineItemPriceSetter(this,2, false);
                 lineItemPriceSetter.setCustomPriceEnteredListener(this);
                 lineItemPriceSetter.setButtonIndex(6);
                 lineItemPriceSetter.setFromCustomer(true);
-                lineItemPriceSetter.show();
+                lineItemPriceSetter.show();*/
             }
         }
     }
 
     @Override
-    public void setPrice(String orderID, int mode, long price, Boolean isPayment)
+    public void setPrice(String orderID, String name, int mode, long price, Boolean isPayment)
     {
         System.out.println("setPrice listener" + PRICE_STRING);
         customItemPresent = true;
@@ -540,6 +541,7 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
     public void payIntent(){
         System.out.println("payintent called");
         mTotal = 0l;
+        ArrayList<Integer> mVcashItems = new ArrayList<Integer>();
 
         Map<String, OrderItem> items = new HashMap<String, OrderItem>();
         for(int i=0; i<lineItems.size(); i++){
@@ -548,9 +550,14 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
                 String name = sharedPreferences.getString(id + "_name", "");
                 Long price = Long.parseLong(sharedPreferences.getString(id + "_price" + 2, "0"));
                 mTotal = mTotal + price;
+                System.out.println("mytotal1"+mTotal);
+                int feepercent = sharedPreferences.getInt("fee_amount",10);
+                long newprice = (long) Math.ceil((double) price*((double) feepercent/100d)  );
 
+                System.out.println("fee percent"+feepercent);
                 if(sharedPreferences.getBoolean(id+"_isvcash",false) == true){
-                    mTotal = mTotal + (price/10);
+                    mTotal = mTotal + newprice;
+                    System.out.println("mytotal2"+mTotal);
                 }
             }
         }
@@ -558,10 +565,26 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
             mTotal = mTotal + donationAmount;
         }
 
+/*        //combine vcash items into one item
+        long vCashTotal = 0l;
+        for(int i=0;i<mVcashItems.size();i++){
+
+            for(int j=0; j<lineItems.get(mVcashItems.get(i)).get(2); j++) {
+                String id = sharedPreferences.getString(2 + "_" + lineItems.get(mVcashItems.get(i)).get(0) + "button" + lineItems.get(mVcashItems.get(i)).get(1) + "_id", "error");
+                String name = sharedPreferences.getString(id + "_name", "");
+                Long price = Long.parseLong(sharedPreferences.getString(id + "_price" + 2, "0"));
+                vCashTotal = vCashTotal + (price/10);
+            }
+        }
+        for(int i=(mVcashItems.size()-1);i>-1;i--) {
+            lineItems.remove(mVcashItems.get(i));
+        }*/
+
+
         registerReceiptRegistration();
         PrintBuilder mBuilder = new PrintBuilder();
         mBuilder.initialize(mContext, 2);
-        mBuilder.PrintLineItemsReceipt(lineItems, mTotal);
+        mBuilder.PrintLineItemsReceipt(lineItems, mTotal, true);
 
         new OrderAsyncTask().execute();
 
@@ -584,9 +607,11 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
                 String name = sharedPreferences.getString(id + "_name", "");
                 Long price = Long.parseLong(sharedPreferences.getString(id + "_price" + 2, "0"));
                 mTotal = mTotal + price;
+                int feepercent = sharedPreferences.getInt("fee_amount",10);
+                long newprice = (long) Math.ceil((double) price*((double) feepercent/100d)  );
 
                 if(sharedPreferences.getBoolean(id+"_isvcash",false) == true){
-                    mTotal = mTotal + (price/10);
+                    mTotal = mTotal + newprice;
                 }
             }
         }
@@ -618,6 +643,8 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
         @Override
         protected final Order doInBackground(Void... params) {
             Order tOrder = null;
+            Boolean hasVcash = false;
+
             try {
                 //creating order just for timestamp and dummy order for receipt printing, no actual line items
                 tOrder = orderConnector.createOrder(new Order());
@@ -632,22 +659,40 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
                     for(int j=0; j<lineItems.get(i).get(2); j++) {
                         String id = sharedPreferences.getString(2 + "_" + lineItems.get(i).get(0) + "button" + lineItems.get(i).get(1) + "_id", "error");
                         String name = sharedPreferences.getString(id + "_name", "");
+                        String category = sharedPreferences.getString(id + "_category", "");
                         Long price = Long.parseLong(sharedPreferences.getString(id + "_price" + 2, "0"));
                         mTotal = mTotal + price;
+                        System.out.println("order total: "+mTotal);
 
-                        OrderItem mOrderItem = new OrderItem(name, price, mTimestamp, 0l, false);
+                        boolean isvcash = sharedPreferences.getBoolean(id+"_isvcash",false);
+                        System.out.println("order isvcash?: "+isvcash);
+
+                        int feepercent = sharedPreferences.getInt("fee_amount",10);
+                        System.out.println("order fee?: "+ feepercent);
+
+                        long newprice = (long) Math.ceil((double) price*((double) 1+(feepercent/100d)));
+                        System.out.println("order newprice: "+ newprice);
+                        long feeamount = (newprice-price);
+
+                        if(isvcash){
+                            hasVcash = true;
+                        }
+                        OrderItem mOrderItem = new OrderItem(name, category, price, mTimestamp, 0l,0l, false, isvcash, false, false);
                         items.put("item" + counter, mOrderItem);
                         counter++;
                         if(sharedPreferences.getBoolean(id+"_isvcash",false) == true){
-                            OrderItem feeOrderItem = new OrderItem(name+" fee", price/10, mTimestamp,0l, false);
+                            OrderItem feeOrderItem = new OrderItem(name+" fee", "Fee", feeamount, mTimestamp,0l,0l, false, isvcash, true, false);
                             items.put("item" + counter, feeOrderItem);
-                            mTotal = mTotal + (price/10);
+                            mTotal = mTotal + feeamount;
+                            System.out.println("fee amount"+feeamount);
                             counter++;
+                            System.out.println("order total2: "+mTotal);
+
                         }
                     }
                 }
                 if(customItemPresent){
-                    OrderItem mOrderItem = new OrderItem("Custom", donationAmount, mTimestamp,0l, false);
+                    OrderItem mOrderItem = new OrderItem("Custom", "Custom", donationAmount, mTimestamp,0l,0l, false, false, false, false);
                     items.put("item"+counter, mOrderItem);
                     mTotal = mTotal + donationAmount;
                     customItemPresent = false;
@@ -656,7 +701,12 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
 
                 LineItem myLineItem = new LineItem();
                 myLineItem.setName("Total");
+
                 myLineItem.setPrice(mTotal);
+                if(hasVcash) {
+                    myLineItem.setIsRevenue(false);
+                }
+
                 orderConnector.addCustomLineItem(tOrder.getId(), myLineItem, false);
                 tOrder = orderConnector.updateOrder(tOrder);
                 return tOrder;
@@ -715,7 +765,7 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
                 mTimestamp = tOrder.getCreatedTime();
 
                 LineItem myLineItem = new LineItem();
-                myLineItem.setName("Amount Changed:");
+                myLineItem.setName("Change");
                 myLineItem.setPrice(mTotal);
                 orderConnector.addCustomLineItem(tOrder.getId(), myLineItem, false);
                 tOrder = orderConnector.updateOrder(tOrder);
@@ -744,13 +794,14 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
 
             mTimestamp = order.getCreatedTime();
             mHelper.createChange("BarOrders", mTotal, mTimestamp);
-            CustomCashDialog customDialog = new CustomCashDialog("bar",mContext, mTotal, 0);
+            /*CustomCashDialog customDialog = new CustomCashDialog("bar",mContext, mTotal, 0);
             customDialog.setCancelable(false);
-            customDialog.show();
+            customDialog.show();*/
+
             CashDrawer.open(mContext, account);
 
-            PrintJob pj = new StaticBillPrintJob.Builder().order(order).build();
-            pj.print(BarActivity.this, account);
+            /*PrintJob pj = new StaticBillPrintJob.Builder().order(order).build();
+            pj.print(BarActivity.this, account);*/
             resetOrder();
             resetReceipt();
 
@@ -815,10 +866,11 @@ public class BarActivity extends Activity implements View.OnClickListener, Custo
                     myButtons[i].setBackgroundResource(zomifi.op27no2.printlogo.R.drawable.red_button);
                    // myButtons[i].setText(sharedPreferences.getString(2 + "_" + currentPage + "button" + (i + 1) + "_name", "Add from Settings") + " x" + lineItems.get(j).get(2) + "\n" + /*formatPrice(*/sharedPreferences.getString(2 + "_" + currentPage + "button" + (i + 1) + "_price", ""))/*)*/;
                     myButtons[i].setText(sharedPreferences.getString(id + "_name", "Add from Settings") + " x" + lineItems.get(j).get(2) + "\n" + formatPrice(sharedPreferences.getString(id + "_price" + 2, "")));
-                    total = total+(mult* Long.parseLong(sharedPreferences.getString(id + "_price" + 2, "")));
+                    total = total+(mult*Long.parseLong(sharedPreferences.getString(id + "_price" + 2, "")));
 
                     if(sharedPreferences.getBoolean(id+"_isvcash",false) == true){
-                        total = total + mult*(Long.parseLong(sharedPreferences.getString(id + "_price" + 2, ""))/10);
+                        int feepercent = sharedPreferences.getInt("fee_amount",10);
+                        total = total + mult*(Long.parseLong(sharedPreferences.getString(id + "_price" + 2, ""))*(feepercent/100));
                     }
                     break;
                 }

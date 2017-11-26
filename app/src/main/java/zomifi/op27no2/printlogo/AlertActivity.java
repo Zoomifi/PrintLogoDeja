@@ -24,12 +24,9 @@ import com.clover.sdk.v1.ClientException;
 import com.clover.sdk.v1.ServiceException;
 import com.clover.sdk.v1.merchant.Merchant;
 import com.clover.sdk.v1.merchant.MerchantConnector;
-import com.parse.ParseAnalytics;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by CristMac on 1/10/16.
@@ -128,24 +125,14 @@ public class AlertActivity extends Activity {
 
                 } catch (RemoteException e) {
                     Toast.makeText(getApplicationContext(), "remote exception2", Toast.LENGTH_LONG).show();
-                    Map<String, String> dimensions = new HashMap<String, String>();
-                    dimensions.put("code", e.getMessage());
-                    ParseAnalytics.trackEventInBackground("error", dimensions);
+
                 } catch (ClientException e) {
                     Toast.makeText(getApplicationContext(), "client exception2", Toast.LENGTH_LONG).show();
-                    Map<String, String> dimensions = new HashMap<String, String>();
-                    dimensions.put("code", e.getMessage());
-                    ParseAnalytics.trackEventInBackground("error", dimensions);
+
                 } catch (ServiceException e) {
                     Toast.makeText(getApplicationContext(), "service exception2", Toast.LENGTH_LONG).show();
-                    Map<String, String> dimensions = new HashMap<String, String>();
-                    dimensions.put("code", e.getMessage());
-                    ParseAnalytics.trackEventInBackground("error", dimensions);
                 } catch (BindingException e) {
                     Toast.makeText(getApplicationContext(), "binding exception2", Toast.LENGTH_LONG).show();
-                    Map<String, String> dimensions = new HashMap<String, String>();
-                    dimensions.put("code", e.getMessage());
-                    ParseAnalytics.trackEventInBackground("error", dimensions);
                 }
                 return merchant;
             }
@@ -256,6 +243,16 @@ public class AlertActivity extends Activity {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void makeToast(String message){
+        final Handler mHandler = new Handler()
+        {
+            public void handleMessage(Message msg)
+            {
+                Toast.makeText(getApplicationContext(), "remote exception2", Toast.LENGTH_LONG).show();
+            }
+        };
     }
 }
 

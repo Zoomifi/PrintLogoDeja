@@ -105,7 +105,7 @@ public class SetupActivity extends Activity implements View.OnClickListener {
         doorButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.door_button);
         ipeButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.ipe_button);
         Button homeButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.home_button);
-        Button backButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.backbutton);
+        Button backButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.select_button);
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

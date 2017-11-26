@@ -8,12 +8,15 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +25,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,13 +41,17 @@ public class CustomIPEListDialog extends Dialog
     private Context context;
     private int mPosition;
     private Set<Integer> mSet = new HashSet<Integer>();
+    private FirebaseHelper mHelper;
 
     private Button submitButton;
     private String mercID;
     private FirebaseRecyclerAdapter mAdapter;
     private DatabaseReference myRef;
+    private EditText mEdit;
+    private String editString = "";
 
     EditText edittexts[] = new EditText[6];
+
 
 
     public CustomIPEListDialog(Context context, int mPosition)
@@ -63,9 +71,34 @@ public class CustomIPEListDialog extends Dialog
         setContentView(R.layout.dialog_ipe_list);
         prefs = context.getSharedPreferences("PREFS", Context.MODE_PRIVATE);
         edt = prefs.edit();
-        mercID = prefs.getString("mercID","");
+        mercID = prefs.getString("mercID", "");
         getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        mHelper = new FirebaseHelper(context);
+        mHelper.initialize();
 
+        mEdit = (EditText) findViewById(R.id.search_bar);
+        ImageButton clearButton = (ImageButton) findViewById(R.id.clear);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEdit.setText("");
+            }
+        });
+        mEdit.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
+                editString = s.toString();
+                mAdapter.notifyDataSetChanged();
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+
+            }
+        });
 
         // Retrieve the Clover account
         if (account == null) {
@@ -81,8 +114,11 @@ public class CustomIPEListDialog extends Dialog
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                mAdapter.cleanup();
+                if(mAdapter !=null) {
+                    mAdapter.cleanup();
+                }
+                RecyclerView recycler = (RecyclerView) findViewById(R.id.employee_recycler);
+                recycler.setAdapter(null);
                 dismiss();
 
             }
@@ -91,7 +127,11 @@ public class CustomIPEListDialog extends Dialog
         findViewById(R.id.customDialogCancelButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAdapter.cleanup();
+                if(mAdapter !=null) {
+                    mAdapter.cleanup();
+                }
+                RecyclerView recycler = (RecyclerView) findViewById(R.id.employee_recycler);
+                recycler.setAdapter(null);
                 dismiss();
 
             }
@@ -101,12 +141,12 @@ public class CustomIPEListDialog extends Dialog
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(new LinearLayoutManager(context));
         myRef = FirebaseDatabase.getInstance().getReference().child(mercID).child("Employees");
-        mAdapter = new FirebaseRecyclerAdapter<Employee, EmployeeHolder>(Employee.class, zomifi.op27no2.printlogo.R.layout.list_item_employee, EmployeeHolder.class, myRef) {
+        mAdapter = new FirebaseRecyclerAdapter<Employee, EmployeeHolder>(Employee.class, zomifi.op27no2.printlogo.R.layout.list_item_employee2, EmployeeHolder.class, myRef) {
             @Override
             public void populateViewHolder(EmployeeHolder employeeViewHolder, Employee employee, int position) {
                 employeeViewHolder.setName(employee.gesName());
                 employeeViewHolder.setText(employee.gesStageName());
-                employeeViewHolder.hideButton();
+                //employeeViewHolder.hideButton();
 
                 if(position % 2 == 0){
                     employeeViewHolder.setBackgroundDark();
@@ -116,7 +156,7 @@ public class CustomIPEListDialog extends Dialog
                 }
 
                 //conditions which will hide employee, adds to mSet which is counts offset for alternating gray/white list items
-                if(employee.gesStatus().equals("Inactive")){
+                if(!employee.gesName().toLowerCase().contains(editString.toLowerCase()) ||employee.gesStatus().equals("Inactive")){
                     mSet.add(position);
                     employeeViewHolder.setVisibility(false);
                 }
@@ -142,8 +182,21 @@ public class CustomIPEListDialog extends Dialog
                     public void onItemClick(View view, int position) {
                         IPESelector mSelector = new IPESelector(context);
                         Employee employee = (Employee) mAdapter.getItem(position);
-                        mSelector.showEmployee(employee.gesName(), employee.gesUniqueID(), mPosition);
+                        // mSelector.showEmployee(employee.gesName(), employee.gesUniqueID(), mPosition);
+                        edt.putBoolean(employee.gesUniqueID()+"added", true);
+                        edt.putBoolean(employee.gesUniqueID()+"active", true);
+                        edt.commit();
+                        if(prefs.getBoolean("autoClock", true)==true){
+                            System.out.println("should be clocked");
+                            Long time = Calendar.getInstance().getTimeInMillis();
+                            mHelper.clockIn(myRef.child(employee.gesUniqueID()), employee.gesUniqueID(), time);
+                        }
                         dismiss();
+                        if(mAdapter !=null) {
+                            mAdapter.cleanup();
+                        }
+                        RecyclerView recycler = (RecyclerView) findViewById(R.id.employee_recycler);
+                        recycler.setAdapter(null);
                     }
 
                     @Override
@@ -181,10 +234,10 @@ public class CustomIPEListDialog extends Dialog
             TextView field = (TextView) mView.findViewById(R.id.text2);
             field.setText(text);
         }
-        public void hideButton() {
+    /*    public void hideButton() {
             Button myButton = (Button) mView.findViewById(R.id.button1);
             myButton.setVisibility(View.GONE);
-        }
+        }*/
 
         public void setBackgroundDark(){
             LinearLayout layout = (LinearLayout) mView.findViewById(R.id.lines);

@@ -39,16 +39,16 @@ public class NavigationActivity extends Activity implements View.OnClickListener
     private Account account;
     private Context mContext;
 
-    private static String mercID ="default";
-    private static String mEmail = "do data";
-    private static String mAdd= "no data";
-    private static String mCity = "no data";
-    private static String mState= "no data";
-    private static String mCountry= "no data";
-    private static String mNumber= "no data";
-    private static String mZip= "no data";
-    private static String mTimezone= "no data";
-    private static String mName= "no data";
+    private static String  mercID ="default";
+    private static String  mEmail = "do data";
+    private static String  mAdd= "no data";
+    private static String  mCity = "no data";
+    private static String  mState= "no data";
+    private static String  mCountry= "no data";
+    private static String  mNumber= "no data";
+    private static String  mZip= "no data";
+    private static String  mTimezone= "no data";
+    private static String  mName= "no data";
 
     private Button clockButton;
     private Button doorButton;
@@ -198,6 +198,7 @@ public class NavigationActivity extends Activity implements View.OnClickListener
                     mercID = merchant.getId();
 
                     edt.putString("currencyCode", merchant.getCurrency().getCurrencyCode());
+                    //edt.putString("mercID", "EWK49MD4D7GFC");
                     edt.putString("mercID", mercID);
                     edt.commit();
 

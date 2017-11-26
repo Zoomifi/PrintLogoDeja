@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="#E0E0E0"
     android:gravity="center_horizontal"
-    tools:context=".MerchantTestActivity">
+    tools:context=".DoorActivity">
 
     <RelativeLayout
         android:id="@+id/actionbar"
@@ -45,7 +45,7 @@
             android:layout_height="50dp"
             android:layout_width="50dp"
             android:scaleType="fitCenter"
-            android:background="@null"
+            android:background="@android:color/transparent"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_action_left" />
         <TextView
@@ -66,7 +66,7 @@
             android:layout_height="50dp"
             android:layout_width="50dp"
             android:scaleType="fitCenter"
-            android:background="@null"
+            android:background="@android:color/transparent"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_action_right" />
 

@@ -41,14 +41,14 @@ public class CustomCashDialog extends Dialog
     private String orderID;
     private static final NumberFormat mCurrencyFormat = DecimalFormat.getCurrencyInstance(Locale.US);
     private LinearLayout feeText;
-    private String headerText;
-    private String bodyText;
+    private String  headerText;
+    private String  bodyText;
     private Context context;
     private int position;
     private int page;
 
-    private String orderId = "";
-    private String activity;
+    private String  orderId = "";
+    private String  activity;
 
 
     private TextView receivedText;

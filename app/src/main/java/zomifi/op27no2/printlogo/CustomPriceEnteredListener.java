@@ -17,7 +17,7 @@ public interface CustomPriceEnteredListener
      * @param price : Price that the EU entered.
      */
 
-    void setPrice(String orderID, int mode, long price, Boolean isPayment);
+    void setPrice(String orderID, String customName, int mode, long price, Boolean isPayment);
 
     /**
      * Bridge method to change the labels for the default (static) price entries on the dialog

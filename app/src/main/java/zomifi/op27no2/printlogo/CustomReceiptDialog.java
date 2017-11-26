@@ -59,11 +59,11 @@ public class CustomReceiptDialog extends Dialog
     private Account account;
     private OrderConnector orderConnector;
     private static final NumberFormat mCurrencyFormat = DecimalFormat.getCurrencyInstance(Locale.US);
-    private String headerText;
-    private String mercId;
-    private String orderId;
-    private String email;
-    private String phoneNumber;
+    private String  headerText;
+    private String  mercId;
+    private String  orderId;
+    private String  email;
+    private String  phoneNumber;
 
 
     private Context context;

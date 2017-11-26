@@ -21,12 +21,12 @@ import android.widget.Toast;
 
 public class SecondsSetter extends Dialog implements View.OnClickListener
 {
-    private Context context;
+    private Context                     context;
     private int                         buttonIndex = 0;
-    private String PRICE_STRING = "";
+    private String                      PRICE_STRING = "";
     private long                        PRICE = 0;
     private CustomSecondsEnteredListener customSecondsEnteredListener;
-    private String headerString = "Enter Seconds";
+    private String                      headerString = "Enter Seconds";
     private SharedPreferences prefs;
     private SharedPreferences.Editor edt;
     /**

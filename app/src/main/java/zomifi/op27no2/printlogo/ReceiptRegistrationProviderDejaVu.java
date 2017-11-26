@@ -31,7 +31,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class ReceiptRegistrationProviderDejaVu extends ContentProvider {
-    public static final String AUTHORITY = "com.clover.example.receipteditexampleDejaVu";
+    public static final String AUTHORITY = "com.clover.example2.receipteditexampleDejaVu";
     public static final Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
 
     public static final String CONTENT_DIRECTORY_TEXT = "text";

@@ -79,7 +79,6 @@
 
     </RelativeLayout>
 
-
     <LinearLayout
         android:id="@+id/switchlayout"
         android:layout_below="@+id/buttonlayout"
@@ -110,7 +109,63 @@
             />
 
     </LinearLayout>
+   <!-- <LinearLayout
+        android:id="@+id/autolayout"
+        android:layout_below="@+id/switchlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginTop="20dp"
+        >
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Automatically Clock In/Out IPEs\nWhen Tab is Added or Closed (On/Off)"
+            android:textSize="22sp"
+            android:textColor="@color/Black"
+            android:paddingRight="20dp"/>
+
+        <Switch
+            android:id="@+id/auto_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:thumb="@drawable/thumb"
+            android:track="@drawable/track"
+            android:layout_marginTop="5dp"
+            />
+
+    </LinearLayout>-->
+    <LinearLayout
+        android:id="@+id/feelayout"
+        android:layout_below="@+id/switchlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginTop="20dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="Fee Percentage for VCash: "
+            android:textSize="22sp"
+            android:textColor="@color/Black"
+            android:paddingRight="20dp"/>
+
+        <NumberPicker
+            android:id="@+id/fee_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/gobackbutton"

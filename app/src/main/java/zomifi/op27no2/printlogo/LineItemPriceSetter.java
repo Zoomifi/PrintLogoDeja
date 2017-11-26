@@ -8,10 +8,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -26,21 +31,25 @@ import java.util.Locale;
 
 public class LineItemPriceSetter extends Dialog implements View.OnClickListener
 {
-    private Context context;
+    private Context                     context;
     private int                         buttonIndex = 0;
     private int                         mode;
-    private String PRICE_STRING = "";
+    private String                      PRICE_STRING = "";
     private long                        PRICE = 0;
     private CustomPriceEnteredListener customPriceEnteredListener;
-    private String headerString = "Enter Dollar Amount";
+    private String                      headerString = "Enter Dollar Amount";
     private boolean                     fromCustomer = false;
-    private static final NumberFormat mCurrencyFormat = DecimalFormat.getCurrencyInstance(Locale.US);
+    private static final NumberFormat   mCurrencyFormat = DecimalFormat.getCurrencyInstance(Locale.US);
     private Handler handler = new Handler();
     private Runnable runnable;
     private SharedPreferences sharedPreferences;
     private Boolean isPayment;
+    private Boolean isItemsActivity = false;
 
     private Button addButton;
+    private ImageButton clearButton;
+    private EditText mEdit;
+    private String customName = "";
     /**
      * Constructor.
      * @param context: Parent's context (from MainActivity or LineItemService.)
@@ -68,6 +77,17 @@ public class LineItemPriceSetter extends Dialog implements View.OnClickListener
         setContentView(zomifi.op27no2.printlogo.R.layout.dialog_set_price);
         sharedPreferences = context.getSharedPreferences("PREFS", Context.MODE_PRIVATE);
         addButton = (Button) findViewById(R.id.addButton);
+        clearButton = (ImageButton) findViewById(R.id.clear_text);
+        mEdit = (EditText) findViewById(R.id.custom_name);
+        LinearLayout nameLayout = (LinearLayout) findViewById(R.id.name_layout);
+        customName = mEdit.getText().toString();
+
+        if(isItemsActivity){
+            nameLayout.setVisibility(View.VISIBLE);
+        }
+        else{
+            nameLayout.setVisibility(View.GONE);
+        }
 
         // Configure window size.
         DisplayMetrics metrics = this.context.getResources().getDisplayMetrics();
@@ -75,6 +95,29 @@ public class LineItemPriceSetter extends Dialog implements View.OnClickListener
         int height = metrics.heightPixels;
 
         getWindow().setLayout((5 * width) / 7, (6 * height) / 7);
+
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEdit.setText("");
+
+            }
+        });
+        mEdit.addTextChangedListener(new TextWatcher() {
+
+        public void afterTextChanged(Editable s) {
+            customName = s.toString();
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+
+        }
+    });
+
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,7 +141,7 @@ public class LineItemPriceSetter extends Dialog implements View.OnClickListener
                         _KEY = context.getString(zomifi.op27no2.printlogo.R.string.donation_button5_price);
                         break;
                     default:
-                        customPriceEnteredListener.setPrice(null,mode,PRICE, isPayment);
+                        customPriceEnteredListener.setPrice(null, customName, mode,PRICE, isPayment);
                         dismiss();
                         return;
                 }
@@ -166,6 +209,11 @@ public class LineItemPriceSetter extends Dialog implements View.OnClickListener
     public void setFromCustomer(boolean fromCustomer)
     {
         this.fromCustomer = fromCustomer;
+    }
+    public void setFromItemsActivity(boolean isItems)
+    {
+        this.isItemsActivity = isItems;
+
     }
 
     /**

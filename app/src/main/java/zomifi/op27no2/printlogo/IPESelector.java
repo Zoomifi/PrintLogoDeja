@@ -25,7 +25,25 @@ public class IPESelector {
         edt.commit();
     }
 
-    public void clearPosition(int position){
+    public void addEmployee(String name, String uniqueID, int position){
+        edt.putString("name" + position, name);
+        edt.putString("uniqueID" + position, uniqueID);
+        edt.putBoolean("full"+position, true);
+        edt.putBoolean("active"+position, false);
+        edt.commit();
+    }
+
+    public void clearPosition(int position, String uniqueID){
+        edt.putString("name" + position, "Click to Add");
+        edt.putString("uniqueID" + position, "");
+        edt.putBoolean("full" + position, false);
+        edt.putBoolean("active" + position, false);
+        edt.putBoolean(uniqueID+"added", false);
+        edt.putBoolean(uniqueID+"active", false);
+        edt.commit();
+    }
+
+    public void clearGrid(int position){
         edt.putString("name" + position, "Click to Add");
         edt.putString("uniqueID" + position, "");
         edt.putBoolean("full"+position, false);

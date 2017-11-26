@@ -11,10 +11,12 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.clover.sdk.util.CloverAccount;
@@ -47,6 +49,8 @@ public class CustomItemDialog2 extends Dialog implements View.OnClickListener
 
     private EditText nameEdit;
     private CheckBox checkBox;
+    private Spinner  categorySpinner;
+    private String   spinnerValue;
 
     private Long holdPrice;
 
@@ -121,18 +125,53 @@ public class CustomItemDialog2 extends Dialog implements View.OnClickListener
 
         }
 
+        categorySpinner = (Spinner) findViewById(R.id.category_spinner);
+        spinnerValue = prefs.getString(myID + "_category","Vu Cash");
+        selectValue(categorySpinner, spinnerValue);
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // your code here
+                spinnerValue = categorySpinner.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
+
+
         submitButton = (Button) findViewById(R.id.customDialogSubmitButton);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!nameEdit.getText().toString().equals("")){
-                    //String id = prefs.getString("recentItemId", "default");
-                    // edt.putString(mode + "_" + page + "button" + position + "_id", id);
+                    String id = prefs.getString("recentItemId", "default");
+                    edt.putString(mode + "_" + page + "button" + position + "_id", id);
                     edt.putString(myID + "_name", nameEdit.getText().toString());
                     edt.putString(myID + "_price1", itemPrice1);
                     edt.putString(myID + "_price2", itemPrice2);
                     edt.putString(myID + "_price3", itemPrice3);
+                    edt.putString(myID + "_category", spinnerValue);
                     edt.commit();
+
+                   /* try {
+                        DB snappydb = DBFactory.open(context); //create or open an existing database using the default name
+
+                        snappydb.put(myID + "_name", nameEdit.getText().toString());
+                        snappydb.put(myID + "_price1", itemPrice1);
+                        snappydb.put(myID + "_price2", itemPrice2);
+                        snappydb.put(myID + "_price3", itemPrice3);
+                        snappydb.put(myID + "_category", spinnerValue);
+
+                        snappydb.close();
+
+                    } catch (SnappydbException e) {
+                        System.out.println("snappy error: "+e.getMessage());
+                    }*/
+
                     dismiss();
                     ((SetupActivity) context).onResume();
 
@@ -144,6 +183,7 @@ public class CustomItemDialog2 extends Dialog implements View.OnClickListener
         });
 
         checkBox = (CheckBox) findViewById(R.id.vcash_checkbox);
+        checkBox.setText("Include Bar V-Cash "+prefs.getInt("fee_amount",10)+"% fee?:");
         checkBox.setChecked(prefs.getBoolean(myID + "_isvcash", false));
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -153,31 +193,6 @@ public class CustomItemDialog2 extends Dialog implements View.OnClickListener
             }
         });
 
-
-/*        amountButton0.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CustomPriceEnteredListener cc = new CustomPriceEnteredListener() {
-                    @Override
-                    public void setPrice(String orderID, long price) {
-                        holdPrice = price;
-                        amountButton0.setText(formatPrice(Long.toString(price)));
-                    }
-
-                    @Override
-                    public void changeButton(int buttonID, String PRICE_STRING) {
-
-                    }
-                };
-
-                LineItemPriceSetter lineItemPriceSetter = new LineItemPriceSetter(context);
-                lineItemPriceSetter.setCustomPriceEnteredListener(cc);
-                lineItemPriceSetter.setButtonIndex(1);
-                lineItemPriceSetter.setHeader("Set Dollar Amount");
-                lineItemPriceSetter.show();
-
-            }
-        });*/
 
         getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
@@ -197,6 +212,15 @@ public class CustomItemDialog2 extends Dialog implements View.OnClickListener
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
+    }
+
+    private void selectValue(Spinner spinner, Object value) {
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).equals(value)) {
+                spinner.setSelection(i);
+                break;
+            }
+        }
     }
 
     @NonNull
@@ -234,7 +258,7 @@ public class CustomItemDialog2 extends Dialog implements View.OnClickListener
             final int finalI = i;
             CustomPriceEnteredListener cc = new CustomPriceEnteredListener() {
                 @Override
-                public void setPrice(String orderID, int mode, long price, Boolean isPayment) {
+                public void setPrice(String orderID, String name, int mode, long price, Boolean isPayment) {
                     amountButtons[finalI].setText(formatPrice(Long.toString(price)));
                     switch (mode) {
                         case 1:

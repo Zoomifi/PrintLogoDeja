@@ -170,6 +170,12 @@ public class ClockActivity extends Activity implements View.OnClickListener, Cus
             public void populateViewHolder(EmployeeHolder employeeViewHolder, Employee employee, int position) {
                 employeeViewHolder.setName(employee.gesName());
 
+                if(prefs.getBoolean("mupdated"+employee.gesUniqueID(), false) == false) {
+                    if (employee.gesName() != null && employee.gesUniqueID() != null) {
+                        mHelper.addEmployeeNameList(employee.gesName(), employee.gesUniqueID());
+                    }
+                }
+
                 if(employee.gesClocked() == true) {
                     employeeViewHolder.setText("Clocked In:      "+employee.gesLastTime());
                     employeeViewHolder.setButtonText("Clock Out");
@@ -214,7 +220,7 @@ public class ClockActivity extends Activity implements View.OnClickListener, Cus
     }
 
 
-    public static class EmployeeHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CustomManagerListener {
+    public static class EmployeeHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CustomManagerListener{
         View mView;
         public Button myButton;
         public String myID;

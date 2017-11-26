@@ -23,7 +23,6 @@ public class MyApplication extends android.app.Application {
         Fabric.with(this, new Crashlytics());
 
 
-
     }
 
 

@@ -22,10 +22,10 @@ import android.widget.TextView;
  */
 public class CustomDialog extends Dialog
 {
-    private String headerText;
-    private String bodyText;
+    private String  headerText;
+    private String  bodyText;
     private Context context;
-    private String orderId = "";
+    private String  orderId = "";
 
     public static final int MAIN_ACTIVITY_INSTRUCTIONS          = 1001;
     public static final int CUSTOMER_FACING_SIDE_INVALID_INPUT  = 1002;

@@ -1,7 +1,10 @@
 package zomifi.op27no2.printlogo;
 
-import com.parse.Parse;
-import com.parse.ParseCrashReporting;
+import android.support.multidex.MultiDex;
+
+import com.crashlytics.android.Crashlytics;
+
+import io.fabric.sdk.android.Fabric;
 
 public class Application extends android.app.Application {
 
@@ -12,8 +15,9 @@ public class Application extends android.app.Application {
     public void onCreate() {
         super.onCreate();
         System.out.println("APPLICATION CALLED");
-        ParseCrashReporting.enable(this);
-        Parse.initialize(this, "4HEcYf3QM7WTNaCV5cdx4igevMjGCstzaQTgKaLQ", "UKvJxHiksfKfNNMPGiW9KtyH7g7NeTBCbHJX30y7");
+
+        MultiDex.install(this);
+        Fabric.with(this, new Crashlytics());
 
     }
 }

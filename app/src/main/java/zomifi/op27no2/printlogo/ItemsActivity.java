@@ -60,16 +60,16 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
     private Handler handler = new Handler();
     private Runnable runnable;
 
-    private static String mercID ="default";
-    private static String mEmail = "do data";
-    private static String mAdd= "no data";
-    private static String mCity = "no data";
-    private static String mState= "no data";
-    private static String mCountry= "no data";
-    private static String mNumber= "no data";
-    private static String mZip= "no data";
-    private static String mTimezone= "no data";
-    private static String mName= "no data";
+    private static String  mercID ="default";
+    private static String  mEmail = "do data";
+    private static String  mAdd= "no data";
+    private static String  mCity = "no data";
+    private static String  mState= "no data";
+    private static String  mCountry= "no data";
+    private static String  mNumber= "no data";
+    private static String  mZip= "no data";
+    private static String  mTimezone= "no data";
+    private static String  mName= "no data";
 
 
     private LinearLayout multiplesLayout;
@@ -81,6 +81,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
 
     private ProgressDialog progressDialog;
     private long donationAmount = 0;
+    private String donationName = "";
     private int TRIGGER = 0;
     private int RESULT_CODE = 2;
     private int mMultiplicity = 1;
@@ -92,7 +93,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
     private Boolean TOUCH_ACTIVE = false;
     private Boolean customItemPresent = false;
 
-    private ArrayList<Boolean> addList = new ArrayList<Boolean>(Arrays.asList(false, false, false, false, false, false, false, false));
+    private ArrayList<Boolean> addList = new ArrayList<Boolean>(Arrays.asList(false,false,false,false,false,false,false,false));
     private boolean isOpened = false;
     private boolean building = false;
     private boolean navigateAway = false;
@@ -138,6 +139,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
         mHelper = new FirebaseHelper(this);
         mHelper.initialize();
         donationAmount = sharedPreferences.getLong("customLongPrice", 0l);
+        donationName = sharedPreferences.getString("customName", "");
 
         multiplesLayout = (LinearLayout) findViewById(zomifi.op27no2.printlogo.R.id.multiplicity);
         orderButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.orderbutton);
@@ -160,7 +162,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
                 tabText.setTextColor((int) animator.getAnimatedValue());
             }
         });
-        colorAnimation.setRepeatMode(Animation.REVERSE);
+        colorAnimation.setRepeatMode(ValueAnimator.REVERSE);
         colorAnimation.setRepeatCount(Animation.INFINITE);
 
         if(sharedPreferences.getBoolean("showMultiple", true)){
@@ -333,6 +335,26 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
             String id = sharedPreferences.getString(1+"_"+currentPage+"button"+(i+1)+"_id", "");
             myButtons[i].setText(sharedPreferences.getString(id+"_name", "Add from Settings") + "\n" + formatPrice(sharedPreferences.getString(id + "_price" + 1, "")));
         }
+
+        /*try {
+                DB snappydb = DBFactory.open(mContext); //create or open an existing database using the default name
+                for(int i=0;i<8;i++) {
+                    String id = snappydb.get(1+"_"+currentPage+"button"+(i+1)+"_id");
+                    if (snappydb.exists(id + "_name") && snappydb.exists(id + "_price" + 1)) {
+                        myButtons[i].setText(snappydb.get(id + "_name") + "\n" + formatPrice(sharedPreferences.getString(id + "_price" + 1, "")));
+
+                    } else {
+                        myButtons[i].setText("Add from Settings");
+                    }
+                }
+                snappydb.close();
+
+        } catch (SnappydbException e) {
+            System.out.println("snappy error: " + e.getMessage());
+        }*/
+
+
+
     }
 
     private void setUpCurrentItems(int currentPage) {
@@ -432,6 +454,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
 
     @Override
     protected void onPause() {
+
         lineItemsToPrefs();
         disconnect();
         System.out.println("OnPause Called" + LOCKED);
@@ -536,6 +559,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
         {
             LineItemPriceSetter lineItemPriceSetter = new LineItemPriceSetter(this,1,false);
             lineItemPriceSetter.setCustomPriceEnteredListener(this);
+            lineItemPriceSetter.setFromItemsActivity(true);
             lineItemPriceSetter.show();
         }
 
@@ -544,14 +568,17 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
     }
 
     @Override
-    public void setPrice(String orderID, int mode, long price, Boolean isPayment)
+    public void setPrice(String orderID, String customName, int mode, long price, Boolean isPayment)
     {
         System.out.println("setPrice listener" + price);
+        System.out.println("setPrice name" + customName);
         customItemPresent = true;
         donationAmount = price;
+        donationName = customName;
         this.PRICE_STRING = String.valueOf(donationAmount);
         titleText.setText("Custom Amount: " + formatPrice(PRICE_STRING));
         edt.putLong("customLongPrice", donationAmount);
+        edt.putString("customName", customName);
         edt.putBoolean("customPresent", true);
         edt.commit();
     }
@@ -740,29 +767,32 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
 
                     //add all line items
                     for (int j = 0; j < lineItems.size(); j++) {
-                        System.out.println("Line items called:");
+                       // System.out.println("Line items called:");
                         if (lineItems.get(j).get(1) == 9) {
-                            System.out.println("Line items2  called:" +donationAmount);
+                          //  System.out.println("Line items2  called:" +donationAmount);
                             //add custom amount
                             // LineItem myLineItem = new LineItem();
                             //myLineItem.setPrice(donationAmount);
-                            OrderItem mOrderItem = new OrderItem("Custom", donationAmount, time ,0l, false);
+                            OrderItem mOrderItem = new OrderItem(donationName, "Custom", donationAmount, time ,0l,0l, false, false, false,false);
                             iOrderItems.put("item"+counter, mOrderItem);
                             iTotal = iTotal+donationAmount;
                             counter++;
                             // orderConnector.addCustomLineItem(myOrder.getId(), myLineItem, false);
 
                         } else {
-                            System.out.println("Line items 3 called:");
+                         //   System.out.println("Line items 3 called:");
                             for (int k = 0; k < lineItems.get(j).get(2); k++) {
-                                System.out.println("Line items 4 called:");
+                                //items stored on buttons by id (mode_page_position, page and position are first two in array for line items, third is # of copies of that item)), then look up price/name of item based on id
+
+                           //     System.out.println("Line items 4 called:");
                                 String id = sharedPreferences.getString(1 + "_" + lineItems.get(j).get(0) + "button" + lineItems.get(j).get(1) + "_id", "error");
                                 String name = sharedPreferences.getString(id + "_name", "");
+                                String category = sharedPreferences.getString(id + "_category", "");
                                 Long price = Long.parseLong(sharedPreferences.getString(id + "_price" + 1, "0"));
                                 /*LineItem myLineItem = new LineItem();
                                 myLineItem.setName(name);
                                 myLineItem.setPrice(price);*/
-                                OrderItem mOrderItem = new OrderItem(name, price, time ,0l, false);
+                                OrderItem mOrderItem = new OrderItem(name, category, price, time ,0l,0l, false, false, false, false);
                                 iOrderItems.put("item"+counter, mOrderItem);
                                 iTotal = iTotal+price;
                                 counter++;
@@ -826,7 +856,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
                 mOrderItems.add(items);*/
             }
 
-            Toast.makeText(getApplicationContext(), "Orders Updated:" + toastString, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Orders Updated:"+toastString, Toast.LENGTH_SHORT).show();
             System.out.println("order results: " + mOrderTotals);
             System.out.println("order results: " + mOrderTimestamps);
             System.out.println("order results: " + mOrderItems);

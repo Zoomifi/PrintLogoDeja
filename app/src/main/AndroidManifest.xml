@@ -76,8 +76,9 @@
             android:exported="true" />
         <provider
             android:name=".ReceiptRegistrationProviderDejaVu"
-            android:authorities="com.clover.example.receipteditexample"
+            android:authorities="com.clover.example2.receipteditexampleDejaVu"
             android:exported="true" />
+
         <receiver android:name=".BootReceiver"
             android:enabled="true">
             <intent-filter>
@@ -88,7 +89,9 @@
                 <data android:scheme="package"  />
             </intent-filter>
         </receiver>
+<!--
         <receiver android:name=".AlarmReceiver"/>
+-->
         <receiver android:name=".LineItemReceiver" >
             <intent-filter android:priority="500" >
                 <action

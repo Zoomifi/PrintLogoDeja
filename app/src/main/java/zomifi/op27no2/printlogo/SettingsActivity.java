@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.NumberPicker;
 import android.widget.Switch;
 
 import com.clover.sdk.util.CustomerMode;
@@ -21,7 +22,9 @@ public class SettingsActivity extends Activity implements View.OnClickListener, 
     private Button customizeButton;
     private Button managerButton;
     private Button backButton;
+    private Button feeButton;
     private Switch mSwitch;
+    private Switch autoSwitch;
     private Handler handler = new Handler();
     private Runnable runnable;
     private Button homeButton;
@@ -41,6 +44,8 @@ public class SettingsActivity extends Activity implements View.OnClickListener, 
         customizeButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.customizebutton);
         backButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.gobackbutton);
         mSwitch = (Switch) findViewById(zomifi.op27no2.printlogo.R.id.mySwitch);
+        //option to switch requested to be removed from app
+      //  autoSwitch = (Switch) findViewById(zomifi.op27no2.printlogo.R.id.auto_switch);
 
         homeButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.home_button);
         homeButton.setOnClickListener(new View.OnClickListener() {
@@ -71,6 +76,22 @@ public class SettingsActivity extends Activity implements View.OnClickListener, 
                 onBackPressed();
             }
         });
+
+        NumberPicker np = (NumberPicker) findViewById(R.id.fee_picker);
+        np.setMinValue(1);
+        np.setMaxValue(30);
+        np.setWrapSelectorWheel(true);
+        np.setValue(prefs.getInt("fee_amount",10));
+        //Set a value change listener for NumberPicker
+        np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal){
+                //Display the newly selected number from picker
+                edt.putInt("fee_amount",newVal);
+                edt.commit();
+            }
+        });
+
         mSwitch.setChecked(prefs.getBoolean("showMultiple", true));
         mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -86,6 +107,21 @@ public class SettingsActivity extends Activity implements View.OnClickListener, 
                 }
             }
         });
+    /*    autoSwitch.setChecked(prefs.getBoolean("autoClock", true));
+        autoSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                if (isChecked) {
+                    edt.putBoolean("autoClock", true);
+                    edt.commit();
+                } else {
+                    edt.putBoolean("autoClock", false);
+                    edt.commit();
+                }
+            }
+        });*/
 
     }
 

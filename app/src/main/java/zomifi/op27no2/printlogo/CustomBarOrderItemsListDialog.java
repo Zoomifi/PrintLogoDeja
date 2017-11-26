@@ -67,7 +67,7 @@ public class CustomBarOrderItemsListDialog extends Dialog implements View.OnClic
 
     private static Context context;
     private static LinearLayout bottomButtons;
-    private String orderId = "";
+    private String  orderId = "";
 
     private TextView wordText;
 
@@ -194,6 +194,8 @@ public class CustomBarOrderItemsListDialog extends Dialog implements View.OnClic
                 if(mAdapter !=null) {
                     mAdapter.cleanup();
                 }
+                RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                recycler.setAdapter(null);
                 dismiss();
             }
         });
@@ -381,10 +383,11 @@ public class CustomBarOrderItemsListDialog extends Dialog implements View.OnClic
 
 
 
+
     }
 
 
-    public static class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CustomManagerListener {
+    public static class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CustomManagerListener{
         View mView;
         public TextView tv1;
         public TextView tv2;
@@ -444,6 +447,7 @@ public class CustomBarOrderItemsListDialog extends Dialog implements View.OnClic
             int position = getAdapterPosition();
             mOrderItem = (OrderItem) mAdapter.getItem(position);
             myItemRef = mAdapter.getRef(position);
+            Long price = mOrderItem.gesPrice();
 
             if(v.getId() == btn1.getId()){
                 CustomManagerDialog managerDialog = new CustomManagerDialog(context, false);
@@ -596,7 +600,7 @@ public class CustomBarOrderItemsListDialog extends Dialog implements View.OnClic
     }
 
     @Override
-    public void setPrice(String orderID, int mode, long price, Boolean isPayment)
+    public void setPrice(String orderID, String name, int mode, long price, Boolean isPayment)
     {
         mPayment = -price;
         mHelper.addIPEPaymentItem(orderUniqueID, mPayment);

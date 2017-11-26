@@ -13,12 +13,13 @@ public class BarOrder {
     public Long voidtimestamp;
     public Boolean voided;
     public Map<String, OrderItem> items;
+    public Boolean ischange;
 
 
     public BarOrder(){
     }
 
-    public BarOrder(String uniqueID, String merchantID, Long total, Long timestamp, Long voidtimestamp, Boolean voided, Map<String, OrderItem> items){
+    public BarOrder(String uniqueID, String merchantID, Long total, Long timestamp, Long voidtimestamp, Boolean voided, Map<String, OrderItem> items, Boolean ischange){
         this.uniqueID = uniqueID;
         this.merchantID = merchantID;
         this.total = total;
@@ -26,6 +27,7 @@ public class BarOrder {
         this.voidtimestamp = voidtimestamp;
         this.voided = voided;
         this.items = items;
+        this.ischange = ischange;
     }
 
     public String gesMerchantID(){
@@ -48,6 +50,9 @@ public class BarOrder {
     }
     public Map<String, OrderItem> items(){
         return items;
+    }
+    public Boolean gesChange(){
+        return ischange;
     }
 
 

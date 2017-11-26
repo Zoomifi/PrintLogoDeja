@@ -59,6 +59,22 @@
         <item>Inactive</item>
     </string-array>
 
+    <string-array name="categories">
+        <item>Vu Cash</item>
+        <item>Vu Cash Fee</item>
+        <item>Payment</item>
+        <item>Door</item>
+        <item>Door Passes</item>
+        <item>Dance - Non Revenue</item>
+        <item>Dance - Revenue</item>
+        <item>VIP</item>
+        <item>Drink - Non Taxable</item>
+        <item>Drink - Taxable</item>
+        <item>Drink Credit</item>
+        <item>Rent</item>
+        <item>Rent Credit</item>
+    </string-array>
+
     <string-array name="state_spinner">
         <item>AL</item>
         <item>AR</item>
@@ -123,7 +139,7 @@
     <string name="navbutton1">Clock In</string>
     <string name="navbutton2">Door</string>
     <string name="navbutton3">IPEs</string>
-    <string name="navbutton4">Bar</string>
+    <string name="navbutton4">Bar/VIP</string>
 
     <string name="searchBarHint">Search by Name</string>
 

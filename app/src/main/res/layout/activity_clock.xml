@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="#E0E0E0"
     android:gravity="center_horizontal"
-    tools:context=".MerchantTestActivity">
+    tools:context=".ClockActivity">
 
     <RelativeLayout
         android:id="@+id/actionbar"
@@ -150,8 +150,8 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="Name"
+            android:layout_weight="3"
+            android:text="Stage Name"
             android:textSize="30sp"
             android:textColor="@color/Black"
             android:layout_marginLeft="20dp"
@@ -159,7 +159,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
+            android:layout_weight="3"
             android:text="Status"
             android:textSize="30sp"
             android:textColor="@color/Black"

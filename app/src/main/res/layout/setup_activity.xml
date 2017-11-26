@@ -80,7 +80,7 @@
             android:layout_height="50dp"
             android:layout_width="50dp"
             android:scaleType="fitCenter"
-            android:background="@null"
+            android:background="@android:color/transparent"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_action_left" />
         <TextView
@@ -100,7 +100,7 @@
             android:layout_height="50dp"
             android:layout_width="50dp"
             android:scaleType="fitCenter"
-            android:background="@null"
+            android:background="@android:color/transparent"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:src="@drawable/ic_action_right" />
@@ -355,7 +355,7 @@
         </LinearLayout>
     </LinearLayout>
     <Button
-        android:id="@+id/backbutton"
+        android:id="@+id/select_button"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:text="Go Back"

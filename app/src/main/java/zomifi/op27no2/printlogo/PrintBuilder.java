@@ -142,13 +142,24 @@ public class PrintBuilder  {
         //    myRows.add(row);
         }
     }
-    public void PrintLineItemsReceipt(ArrayList<ArrayList<Integer>> lineItems, Long total){
+    public void PrintLineItemsReceipt(ArrayList<ArrayList<Integer>> lineItems, Long total, boolean canHaveVcash){
+        Long vCashTotal = 0l;
+        //method specifies can Have Vcash if it is bar order. Boolean vCashPresent is for individual bar orders
 
-        Bitmap holdBitmap;
+        Boolean vCashPresent = false;
+
         Bitmap rowspace = textAsBitmap("", 30, Color.BLACK, true);
         Bitmap row0 = textAsBitmap("Line Items:", 30, Color.BLACK,true);
-        holdBitmap = mergeBitmapV(rowspace,row0);
-        row0 = holdBitmap;
+        //Bitmap holdBitmap = mergeBitmapV(rowspace,row0);
+        row0 = mergeBitmapV(rowspace,row0);
+
+        //row0 = holdBitmap;
+        rowspace.recycle();
+
+
+        //holdBitmap.recycle();
+        rowspace = null;
+        //holdBitmap = null;
 
 
         for(int i=0;i<lineItems.size();i++){
@@ -164,123 +175,278 @@ public class PrintBuilder  {
             Bitmap pricepiece = priceTextAsBitmap(formatPrice(prefs.getString(id + "_price"+mScreen, ""), mult2), 26, Color.BLACK, false);
             System.out.println("line item price:"+prefs.getString(id+"_price"+mScreen," "));
 
-            Bitmap nextrow = textAsBitmap(getitem, 26, Color.BLACK, false);
-            Bitmap together = mergeBitmapH(nextrow, pricepiece);
-            holdBitmap = mergeBitmapV(row0,together);
-            row0 = holdBitmap;
 
+            if(prefs.getBoolean(id+"_isvcash",false) == false) {
+                Bitmap nextrow = textAsBitmap(getitem, 26, Color.BLACK, false);
+                Bitmap together1 = mergeBitmapH(nextrow, pricepiece);
+                //Bitmap holdBitmap2 = mergeBitmapV(row0, together1);
+                row0 = mergeBitmapV(row0, together1);
+               // row0 = holdBitmap2;
+                nextrow.recycle();
+                pricepiece.recycle();
+                together1.recycle();
+                //holdBitmap2.recycle();
+                nextrow = null;
+                together1 = null;
+                //holdBitmap2 = null;
+                pricepiece = null;
+            }else if(canHaveVcash){
+                vCashPresent = true;
+                vCashTotal = vCashTotal + Long.parseLong(prefs.getString(id + "_price"+mScreen, ""))*mult2;
+            }
 
-            if(prefs.getBoolean(id+"_isvcash",false) == true){
+            /*if(prefs.getBoolean(id+"_isvcash",false) == true){
                 String getitem2 = Integer.toString(mult2)+" "+prefs.getString(id+"_name","")+" FEE";
-                Long fee = Long.parseLong(prefs.getString(id + "_price" + mScreen, ""))/10;
+                Long fee = Long.parseLong(prefs.getString(id + "_price"+mScreen, ""))/10;
                 Bitmap pricepiece2 = priceTextAsBitmap(formatPrice(Long.toString(fee), mult2), 26, Color.BLACK, false);
                 Bitmap nextrow2 = textAsBitmap(getitem2, 26, Color.BLACK, false);
                 Bitmap together2 = mergeBitmapH(nextrow2, pricepiece2);
                 holdBitmap = mergeBitmapV(row0,together2);
                 row0 = holdBitmap;
-            }
+            }*/
+
+
+        }
+
+        if(vCashPresent == true && canHaveVcash) {
+            Bitmap pricepiece = priceTextAsBitmap(formatPrice(Long.toString(vCashTotal), 1), 26, Color.BLACK, false);
+            Bitmap nextrow = textAsBitmap("Vu Cash", 26, Color.BLACK, false);
+            Bitmap together = mergeBitmapH(nextrow, pricepiece);
+            //Bitmap holdBitmap3 = mergeBitmapV(row0, together);
+            row0 = mergeBitmapV(row0, together);
+            //row0 = holdBitmap3;
+            nextrow.recycle();
+            together.recycle();
+            pricepiece.recycle();
+            //holdBitmap3.recycle();
+            nextrow = null;
+            together = null;
+            //holdBitmap3 = null;
+            pricepiece = null;
+
+            int feepercent = prefs.getInt("fee_amount",10);
+            long newfee = (long) Math.ceil((double) vCashTotal*((double) feepercent/100d)  );
+
+            Long fee = newfee;
+
+            Bitmap pricepiecef = priceTextAsBitmap(formatPrice(Long.toString(fee), 1), 26, Color.BLACK, false);
+            Bitmap nextrowf = textAsBitmap("Vu Cash Fee", 26, Color.BLACK, false);
+            Bitmap togetherf = mergeBitmapH(nextrowf, pricepiecef);
+            //Bitmap holdBitmap4 = mergeBitmapV(row0, togetherf);
+            row0 = mergeBitmapV(row0, togetherf);
+            //row0 = holdBitmap4;
+
+            nextrowf.recycle();
+            togetherf.recycle();
+            pricepiecef.recycle();
+            //holdBitmap4.recycle();
+            nextrowf = null;
+            togetherf = null;
+            pricepiecef = null;
+            //holdBitmap4 = null;
 
         }
 
         if(prefs.getBoolean("customPresent",false) == true){
-            Bitmap nextrow = textAsBitmap("Custom", 26, Color.BLACK, false);
-            Bitmap pricepiece = priceTextAsBitmap(formatPrice(prefs.getString("customPrice", "0"),1), 26, Color.BLACK, false);
-            Bitmap together = mergeBitmapH(nextrow, pricepiece);
-            holdBitmap = mergeBitmapV(row0,together);
-            row0 = holdBitmap;
+            Bitmap nextrow1 = textAsBitmap("Custom", 26, Color.BLACK, false);
+            Bitmap pricepiece1 = priceTextAsBitmap(formatPrice(prefs.getString("customPrice", "0"),1), 26, Color.BLACK, false);
+            Bitmap together1 = mergeBitmapH(nextrow1, pricepiece1);
+            //Bitmap holdBitmap5 = mergeBitmapV(row0,together1);
+            row0 = mergeBitmapV(row0,together1);
+            //row0 = holdBitmap5;
+
+            nextrow1.recycle();
+            together1.recycle();
+            //holdBitmap5.recycle();
+            pricepiece1.recycle();
+            nextrow1 = null;
+            together1 = null;
+            //holdBitmap5 = null;
+            pricepiece1 = null;
         }
 
         //space
-        Bitmap nextrow = textAsBitmap("", 26, Color.BLACK, false);
-        holdBitmap = mergeBitmapV(row0,nextrow);
-        row0 = holdBitmap;
+        Bitmap nextrow2 = textAsBitmap("", 26, Color.BLACK, false);
+        //Bitmap holdBitmap6 = mergeBitmapV(row0,nextrow2);
+        row0 = mergeBitmapV(row0,nextrow2);
+        //row0 = holdBitmap6;
+        nextrow2.recycle();
+        //holdBitmap6.recycle();
+        nextrow2 = null;
+        //holdBitmap6 = null;
 
         // total
         String left5 = "Total";
         Bitmap pricepiece5 = priceTextAsBitmap(formatPrice(Long.toString(total), 1), 26, Color.BLACK, true);
         Bitmap nextrow5 = textAsBitmap(left5, 26, Color.BLACK, true);
         Bitmap together5 = mergeBitmapH(nextrow5, pricepiece5);
-        holdBitmap = mergeBitmapV(row0,together5);
-        row0 = holdBitmap;
+        //Bitmap holdBitmap7 = mergeBitmapV(row0,together5);
+        row0 = mergeBitmapV(row0,together5);
+        //row0 = holdBitmap7;
+
+        pricepiece5.recycle();
+        nextrow5.recycle();
+        together5.recycle();
+        //holdBitmap7.recycle();
+        pricepiece5 = null;
+        nextrow5 = null;
+        together5 = null;
+        //holdBitmap7 = null;
 
         saveImage(mContext, row0, "logo", "one");
+        row0.recycle();
+        row0 = null;
     }
 
     public void PrintChangeReceipt(Long total){
 
-        Bitmap holdBitmap;
         Bitmap row0 = textAsBitmap("", 30, Color.BLACK,true);
 
         Bitmap pricepiece = priceTextAsBitmap(formatPrice(Long.toString(total), 1), 26, Color.BLACK, false);
         Bitmap nextrow = textAsBitmap("Change Issued:", 30, Color.BLACK,true);
         Bitmap together = mergeBitmapH(nextrow, pricepiece);
-        holdBitmap = mergeBitmapV(row0,together);
-        row0 = holdBitmap;
+        //Bitmap holdBitmap8 = mergeBitmapV(row0,together);
+        row0 = mergeBitmapV(row0,together);
+        //row0 = holdBitmap8;
 
+        pricepiece.recycle();
+        nextrow.recycle();
+        together.recycle();
+        //holdBitmap8.recycle();
+        pricepiece = null;
+        nextrow = null;
+        together = null;
+        //holdBitmap8 = null;
 
         saveImage(mContext, row0, "logo", "one");
+        row0.recycle();
+        row0 = null;
     }
 
-        public void PrintOrderItemsReceipt(ArrayList<OrderItem> mItems, Long balance, Long total, Boolean voided){
+        public void PrintOrderItemsReceipt(ArrayList<OrderItem> mItems, Long balance, Long total, Boolean voided, String ipe, String shifts){
 
-        Bitmap holdBitmap;
         Bitmap row0 = textAsBitmap("", 30, Color.BLACK, true);
+
+        Bitmap namerow = textAsBitmap("IPE: "+ipe, 30, Color.BLACK,true);
+        //Bitmap holdBitmap9 = mergeBitmapV(row0,namerow);
+        row0= mergeBitmapV(row0,namerow);
+        //row0 = holdBitmap9;
+        //holdBitmap9.recycle();
+        //holdBitmap9 = null;
+
+        Bitmap shiftrow = textAsBitmap("Shift Total: "+shifts, 28, Color.BLACK,true);
+        //Bitmap holdBitmap10 = mergeBitmapV(row0,shiftrow);
+        row0 = mergeBitmapV(row0,shiftrow);
+        //row0 = holdBitmap10;
+        shiftrow.recycle();
+        //holdBitmap10.recycle();
+        shiftrow = null;
+        //holdBitmap10 = null;
 
         if(voided) {
             Bitmap rowspace = textAsBitmap("ORDER VOID", 36, Color.BLACK, true);
-            holdBitmap = mergeBitmapV(row0, rowspace);
-            row0 = holdBitmap;
+            //Bitmap holdBitmap11 = mergeBitmapV(row0, rowspace);
+            row0 = mergeBitmapV(row0, rowspace);
+            //row0 = holdBitmap11;
+            //holdBitmap11.recycle();
+            rowspace.recycle();
+            //holdBitmap11 = null;
+            rowspace = null;
         }
 
         Bitmap rowspace3 = textAsBitmap("Line Items:", 30, Color.BLACK,true);
-        holdBitmap = mergeBitmapV(row0,rowspace3);
-        row0 = holdBitmap;
+        //Bitmap holdBitmap12 = mergeBitmapV(row0,rowspace3);
+       row0 = mergeBitmapV(row0,rowspace3);
+        //row0 = holdBitmap12;
+            rowspace3.recycle();
+            //holdBitmap12.recycle();
+            rowspace3 = null;
+            //holdBitmap12 = null;
 
 
         for(int i=0;i<mItems.size();i++){
 
-            String getitem = mItems.get(i).gesName();
+            String myItem = mItems.get(i).gesName();
             if(mItems.get(i).gesVoided()){
-                getitem = getitem+"(VOID)";
+                myItem = myItem+"(VOID)";
             }
-            System.out.println("line item name:"+getitem);
+            System.out.println("line item name:"+myItem);
 
             Bitmap pricepiece = priceTextAsBitmap(formatPrice(Long.toString(mItems.get(i).gesPrice()), 1), 26, Color.BLACK, false);
-
-            Bitmap nextrow = textAsBitmap(getitem, 26, Color.BLACK, false);
+            Bitmap nextrow = textAsBitmap(myItem, 26, Color.BLACK, false);
             Bitmap together = mergeBitmapH(nextrow, pricepiece);
-            holdBitmap = mergeBitmapV(row0,together);
-            row0 = holdBitmap;
+            //Bitmap holdBitmap13 = mergeBitmapV(row0,together);
+            row0 = mergeBitmapV(row0,together);
+            //row0 = holdBitmap13;
+            pricepiece.recycle();
+            nextrow.recycle();
+            together.recycle();
+            //holdBitmap13.recycle();
+            pricepiece = null;
+            nextrow = null;
+            together = null;
+            //holdBitmap13 = null;
+
         }
 
 
         //space
         Bitmap nextrow = textAsBitmap("", 26, Color.BLACK, false);
-        holdBitmap = mergeBitmapV(row0,nextrow);
-        row0 = holdBitmap;
+        //Bitmap holdBitmap14 = mergeBitmapV(row0,nextrow);
+        row0 = mergeBitmapV(row0,nextrow);
+        //row0 = holdBitmap14;
+        nextrow.recycle();
+            //holdBitmap14.recycle();
+        nextrow = null;
 
         // total
         String left5 = "Total";
         Bitmap pricepiece5 = priceTextAsBitmap(formatPrice(Long.toString(total), 1), 26, Color.BLACK, true);
         Bitmap nextrow5 = textAsBitmap(left5, 26, Color.BLACK, true);
         Bitmap together5 = mergeBitmapH(nextrow5, pricepiece5);
-        holdBitmap = mergeBitmapV(row0,together5);
-        row0 = holdBitmap;
+        //Bitmap holdBitmap15 = mergeBitmapV(row0,together5);
+        row0 = mergeBitmapV(row0,together5);
+        //row0 = holdBitmap15;
+            pricepiece5.recycle();
+            nextrow5.recycle();
+            together5.recycle();
+        //    holdBitmap15.recycle();
+            pricepiece5 = null;
+            nextrow5 = null;
+            together5 = null;
+        //    holdBitmap15 = null;
 
         //space
         Bitmap nextrow2 = textAsBitmap("", 26, Color.BLACK, false);
-        holdBitmap = mergeBitmapV(row0,nextrow2);
-        row0 = holdBitmap;
+        //Bitmap holdBitmap16 = mergeBitmapV(row0,nextrow2);
+        row0 = mergeBitmapV(row0,nextrow2);
+        //row0 = holdBitmap16;
+        nextrow2.recycle();
+        //holdBitmap16.recycle();
+        nextrow2 = null;
+        //holdBitmap16 = null;
 
         // total
         String left6 = "Balance";
         Bitmap pricepiece6 = priceTextAsBitmap(formatPrice(Long.toString(balance), 1), 26, Color.BLACK, true);
         Bitmap nextrow6 = textAsBitmap(left6, 26, Color.BLACK, true);
         Bitmap together6 = mergeBitmapH(nextrow6, pricepiece6);
-        holdBitmap = mergeBitmapV(row0,together6);
-        row0 = holdBitmap;
+        //Bitmap holdBitmap17 = mergeBitmapV(row0,together6);
+        row0 = mergeBitmapV(row0,together6);
+        //row0 = holdBitmap17;
+            pricepiece6.recycle();
+            nextrow6.recycle();
+            together6.recycle();
+         //   holdBitmap17.recycle();
+            pricepiece6 = null;
+            nextrow6 = null;
+            together6 = null;
+         //   holdBitmap17 = null;
+
 
             saveImage(mContext, row0, "logo", "one");
+            row0.recycle();
+            row0 = null;
     }
 
 
@@ -598,7 +764,7 @@ public class PrintBuilder  {
         mCurrencyFormat.setCurrency(Currency.getInstance(currency));
         String price = "";
         if(!PRICE_STRING.equals("")) {
-            long value = multiple* Long.valueOf(PRICE_STRING);
+            long value = multiple*Long.valueOf(PRICE_STRING);
             price = mCurrencyFormat.format(value / 100.0);
         }
         return price;

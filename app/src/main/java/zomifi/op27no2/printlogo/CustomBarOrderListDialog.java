@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +26,7 @@ import com.clover.sdk.v3.order.OrderConnector;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
@@ -49,7 +51,7 @@ public class CustomBarOrderListDialog extends Dialog {
 
     private static Context context;
     private static LinearLayout bottomButtons;
-    private String orderId = "";
+    private String  orderId = "";
 
     private TextView wordText;
 
@@ -81,7 +83,8 @@ public class CustomBarOrderListDialog extends Dialog {
 
     private Button cancelVoidButton;
     private static Button voidDoorButton;
-
+    private int page=1;
+    private Boolean readyToScroll = true;
 
 
     public CustomBarOrderListDialog(Context context)
@@ -122,12 +125,22 @@ public class CustomBarOrderListDialog extends Dialog {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(mAdapter !=null) {
+                    mAdapter.cleanup();
+                }
+                RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                recycler.setAdapter(null);
                 dismiss();
             }
         });
         cancelVoidButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(mAdapter !=null) {
+                    mAdapter.cleanup();
+                }
+                RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+                recycler.setAdapter(null);
                 dismiss();
             }
         });
@@ -140,19 +153,23 @@ public class CustomBarOrderListDialog extends Dialog {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
-        RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
+        final RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
         recycler.setHasFixedSize(true);
         mManager = new LinearLayoutManager(context);
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         recycler.setLayoutManager(mManager);
         DatabaseReference myOrdersRef = thisRef.child("BarOrders");
-        mAdapter = new FirebaseRecyclerAdapter<BarOrder, OrderHolder>(BarOrder.class, R.layout.list_item_barorderitem, OrderHolder.class, myOrdersRef) {
+
+        Query query = thisRef.child("BarOrders").limitToLast(page*30);
+
+        mAdapter = new FirebaseRecyclerAdapter<BarOrder, OrderHolder>(BarOrder.class, R.layout.list_item_barorderitem, OrderHolder.class, query) {
             @Override
             public void populateViewHolder(OrderHolder orderViewHolder, BarOrder mBarOrder, int position) {
                 SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
                 String time = df.format(mBarOrder.gesTimestamp());
                 orderViewHolder.setText1(time);
+                orderViewHolder.setText0(Integer.toString((30)-position)+": ");
                 orderViewHolder.setText2(formatPrice(mBarOrder.gesTotal()));
                 if(mBarOrder.gesVoided()){
                     orderViewHolder.setText3("VOID");
@@ -169,7 +186,64 @@ public class CustomBarOrderListDialog extends Dialog {
                 }
             }
         };
+
         recycler.setAdapter(mAdapter);
+
+
+        recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    System.out.println("reached bottom");
+                    page++;
+
+                    Query query = thisRef.child("BarOrders").limitToLast(page*30);
+
+                    mAdapter.cleanup();
+                    mAdapter = new FirebaseRecyclerAdapter<BarOrder, OrderHolder>(BarOrder.class, R.layout.list_item_barorderitem, OrderHolder.class, query) {
+                        @Override
+                        public void populateViewHolder(OrderHolder orderViewHolder, BarOrder mBarOrder, int position) {
+                            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+                            String time = df.format(mBarOrder.gesTimestamp());
+                            orderViewHolder.setText1(time);
+                            orderViewHolder.setText0(Integer.toString((page*30)-position)+": ");
+                            orderViewHolder.setText2(formatPrice(mBarOrder.gesTotal()));
+                            if(mBarOrder.gesVoided()){
+                                orderViewHolder.setText3("VOID");
+                            }
+                            else{
+                                orderViewHolder.setText3("");
+                            }
+
+                            if(position % 2 == 0){
+                                orderViewHolder.setBackgroundDark();
+                            }
+                            else{
+                                orderViewHolder.setBackgroundLight();
+                            }
+                        }
+                    };
+                    readyToScroll = true;
+                    recycler.setAdapter(mAdapter);
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("scroll called");
+                                recycler.scrollToPosition(30);
+                                readyToScroll = false;
+                            }
+
+                    }, 1000);
+
+
+
+
+                }
+            }
+        });
 
 
         //end oncreate
@@ -177,6 +251,7 @@ public class CustomBarOrderListDialog extends Dialog {
 
     public static class OrderHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CustomManagerListener {
         View mView;
+        public TextView tv0;
         public TextView tv1;
         public TextView tv2;
         public TextView tv3;
@@ -189,12 +264,17 @@ public class CustomBarOrderListDialog extends Dialog {
             mView = itemView;
          //   myButton = (Button) itemView.findViewById(R.id.button1);
          //   myButton.setOnClickListener(this);
+            tv0 = (TextView) itemView.findViewById(R.id.textposition);
             tv1 = (TextView) itemView.findViewById(R.id.text1);
             tv2 = (TextView) itemView.findViewById(R.id.text2);
             tv3 = (TextView) itemView.findViewById(R.id.text3);
             bt1 = (Button) itemView.findViewById(R.id.void_door_button);
             bt1.setOnClickListener(this);
             itemView.setOnClickListener(this);
+        }
+        public void setText0(String name) {
+            TextView field = (TextView) mView.findViewById(R.id.textposition);
+            field.setText(name);
         }
 
         public void setText1(String name) {
