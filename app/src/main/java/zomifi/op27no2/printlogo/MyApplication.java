@@ -19,12 +19,15 @@ public class MyApplication extends android.app.Application {
         MyApplication.context = getApplicationContext();
         System.out.println("APPLICATION CALLED");
 
-        MultiDex.install(this);
         Fabric.with(this, new Crashlytics());
 
 
     }
-
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(context);
+        MultiDex.install(this);
+    }
 
     public static Context getAppContext() {
         return MyApplication.context;

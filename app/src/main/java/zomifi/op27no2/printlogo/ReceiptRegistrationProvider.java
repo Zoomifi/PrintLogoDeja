@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class ReceiptRegistrationProvider extends ContentProvider {
-    public static final String AUTHORITY = "com.clover.example.receipteditexample";
+    public static final String AUTHORITY = "zomifi.op27no2.printlogo.receipteditexample";
     public static final Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
 
     public static final String CONTENT_DIRECTORY_TEXT = "text";

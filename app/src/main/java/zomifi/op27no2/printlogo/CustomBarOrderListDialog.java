@@ -188,8 +188,6 @@ public class CustomBarOrderListDialog extends Dialog {
         };
 
         recycler.setAdapter(mAdapter);
-
-
         recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -237,8 +235,6 @@ public class CustomBarOrderListDialog extends Dialog {
                             }
 
                     }, 1000);
-
-
 
 
                 }

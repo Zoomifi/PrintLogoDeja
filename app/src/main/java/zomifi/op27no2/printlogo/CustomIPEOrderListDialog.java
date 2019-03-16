@@ -422,7 +422,7 @@ public class CustomIPEOrderListDialog extends Dialog
 /*            if(v.getId() == tv1.getId()){
 
             }*/
-            CustomIPEOrderItemsListDialog customDialog = new CustomIPEOrderItemsListDialog(context, mIPEOrder.gesEmployeeID(),mIPEOrder.gesUniqueID(), false);
+            CustomIPEOrderItemsListDialog customDialog = new CustomIPEOrderItemsListDialog(context, mIPEOrder.gesEmployeeName(), mIPEOrder.gesEmployeeID(), mIPEOrder.gesUniqueID(), false);
             customDialog.setCancelable(false);
             customDialog.show();
 

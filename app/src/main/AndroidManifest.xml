@@ -71,12 +71,12 @@
 
 
         <provider
-            android:name=".ReceiptRegistrationProvider"
-            android:authorities="com.clover.example.receipteditexample"
+            android:name="zomifi.op27no2.printlogo.ReceiptRegistrationProvider"
+            android:authorities="zomifi.op27no2.printlogo.receipteditexample"
             android:exported="true" />
         <provider
-            android:name=".ReceiptRegistrationProviderDejaVu"
-            android:authorities="com.clover.example2.receipteditexampleDejaVu"
+            android:name="zomifi.op27no2.printlogo.ReceiptRegistrationProviderDejaVu"
+            android:authorities="zomifi.op27no2.printlogo.receipteditexampleDejaVu"
             android:exported="true" />
 
         <receiver android:name=".BootReceiver"

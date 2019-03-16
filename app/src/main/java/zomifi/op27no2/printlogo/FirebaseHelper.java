@@ -57,9 +57,9 @@ public class FirebaseHelper {
             }
         });
 
-        EmployeeLight mEmployeeLight = new EmployeeLight(stagename, key);
+        EmployeeLight mEmployeeLight = new EmployeeLight(name, stagename, key, status);
         DatabaseReference newRef2 =  thisRef.child("EmployeeNames");
-        newRef2.child(name).setValue(mEmployeeLight, new DatabaseReference.CompletionListener() {
+        newRef2.child(key).setValue(mEmployeeLight, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
@@ -74,6 +74,8 @@ public class FirebaseHelper {
 
 
     public void updateEmployee(String employeeUniqueID, String name, String stagename, String status, String street, String city, String state, String zip, String notes,String phone1,String phone2,String ssn, String balance, String custom, Boolean clocked){
+
+
         DatabaseReference ipeRef =  thisRef.child("Employees").child(employeeUniqueID);
         Map<String, Object> updates = new HashMap<String, Object>();
         updates.put("name", name);
@@ -101,44 +103,95 @@ public class FirebaseHelper {
             }
         });
 
-    }
-
-    public void clockIn(final DatabaseReference myRef, final String employeeID, final Long time) {
-        myRef.child("clocked").setValue(true, new DatabaseReference.CompletionListener() {
+        DatabaseReference lightRef =  thisRef.child("EmployeeNames").child(employeeUniqueID);
+        Map<String, Object> updates2 = new HashMap<String, Object>();
+        updates2.put("stagename", name);
+        updates2.put("name", stagename);
+        lightRef.updateChildren(updates2, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
-                    logError("clock in save failure"+" reference:"+databaseReference.toString() + " error:" +databaseError.toString());
-                } else {
-                    System.out.println("clockin success");
-                    DatabaseReference newRef = myRef.child("shifts").push();
-                    String key = newRef.getKey();
-                    Shift mShift = new Shift(key, employeeID, time, null, false);
-                    newRef.setValue(mShift, new DatabaseReference.CompletionListener() {
-                        @Override
-                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                            if (databaseError != null) {
-                                logError("clock in time save failure"+" reference:"+databaseReference.toString() + " error:" +databaseError.toString());
-                            } else {
-                                System.out.println("shift time save success");
-                                edt.putBoolean(employeeID + "clocked", true);
-                                edt.commit();
-                            }
-                        }
 
-                    });
+                    logError("reference:"+databaseReference.toString() + " error:" +databaseError.toString());
+                } else {
+                    System.out.println("update employee light success");
                 }
             }
         });
-        myRef.child("lastTime").setValue(time, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if (databaseError != null) {
-                    logError("time save failure"+" reference:"+databaseReference.toString() + " error:" +databaseError.toString());
-                } else {
-                    System.out.println("lasttime creation success");
-                }
-            }
+
+    }
+
+    public void clockIn(final DatabaseReference myRef, final String employeeName, final String employeeID, final Long time) {
+
+
+        Query clockQuery = myRef;
+        final Boolean[] checkClocked = {null};
+        clockQuery.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        checkClocked[0] = (Boolean) dataSnapshot.child("clocked").getValue();
+                        System.out.println("clocked data test "+dataSnapshot.child("clocked").getValue());
+
+
+                        // only allow clock in if they are already clocked out
+                        if(checkClocked[0] == false) {
+                            myRef.child("clocked").setValue(true, new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                    if (databaseError != null) {
+                                        logError("clock in save failure" + " reference:" + databaseReference.toString() + " error:" + databaseError.toString());
+                                    } else {
+                                        System.out.println("clockin success");
+
+                                        //create new shift
+                                        DatabaseReference newRef = myRef.child("shifts").push();
+                                        String key = newRef.getKey();
+                                        Shift mShift = new Shift(key, employeeID, time, null, false);
+                                        newRef.setValue(mShift, new DatabaseReference.CompletionListener() {
+                                            @Override
+                                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                                if (databaseError != null) {
+                                                    logError("clock in time save failure" + " reference:" + databaseReference.toString() + " error:" + databaseError.toString());
+                                                } else {
+                                                    System.out.println("shift time save success");
+                                                    edt.putBoolean(employeeID + "clocked", true);
+                                                    edt.commit();
+                                                }
+                                            }
+
+                                        });
+
+                                        //add name to clocked tree
+                                        DatabaseReference ipeRef =  thisRef.child("ClockedList").child(employeeName);
+                                        ipeRef.setValue(employeeName);
+
+
+                                    }
+                                }
+                            });
+                            myRef.child("lastTime").setValue(time, new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                    if (databaseError != null) {
+                                        logError("time save failure" + " reference:" + databaseReference.toString() + " error:" + databaseError.toString());
+                                    } else {
+                                        System.out.println("lasttime creation success");
+                                    }
+                                }
+                            });
+                        }
+                        else{
+                            Toast.makeText(mContext, "IPE Already Clocked In", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        logError("no clocked data found" + " error:" + databaseError.toString());
+                    }
         });
 
     }
@@ -160,21 +213,54 @@ public class FirebaseHelper {
 
     }
 
-    public void clockOut(final DatabaseReference myRef, final String employeeID, final Long time){
-        myRef.child("clocked").setValue(false, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if (databaseError != null) {
-                    logError("clock in save failure" + " reference:" + databaseReference.toString() + " error:" + databaseError.toString());
-                } else {
-                    System.out.println("clockout success");
-                    setLastShift(myRef, time);
-                    edt.putBoolean(employeeID+"clocked", false);
-                    edt.commit();
-                }
-            }
+    public void clockOut(final DatabaseReference myRef, final String employeeName, final String employeeID, final Long time){
+        Query clockQuery = myRef;
+        final Boolean[] checkClocked = {null};
+        clockQuery.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        checkClocked[0] = (Boolean) dataSnapshot.child("clocked").getValue();
+                        System.out.println("clocked data test "+dataSnapshot.child("clocked").getValue());
+
+                        if(checkClocked[0] == true){
+                            myRef.child("clocked").setValue(false, new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                    if (databaseError != null) {
+                                        logError("clock in save failure" + " reference:" + databaseReference.toString() + " error:" + databaseError.toString());
+                                    } else {
+                                        System.out.println("clockout success");
+
+                                        //end shift
+                                        setLastShift(myRef, time);
+                                        edt.putBoolean(employeeID+"clocked", false);
+                                        edt.commit();
+
+                                        //delete clocked ref
+                                        DatabaseReference ipeRef =  thisRef.child("ClockedList").child(employeeName);
+                                        ipeRef.removeValue();
+                                    }
+                                }
+                            });
+
+                        }
+                        else{
+                            Toast.makeText(mContext, "IPE Already Clocked Out", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        logError("no clocked data found" + " error:" + databaseError.toString());
+                    }
+
         });
+
     }
+
+
 
     public void changeClockOut(final String shiftID, final String employeeID, final Long time) {
         DatabaseReference shiftRef = thisRef.child("Employees").child(employeeID).child("shifts").child(shiftID).child("clockout");
@@ -192,6 +278,9 @@ public class FirebaseHelper {
         });
 
     }
+
+
+
 
     public void logError(String error){
 
@@ -354,8 +443,10 @@ public class FirebaseHelper {
                             if (dataSnapshot.exists()) {
                                     final String orderID = dataSnapshot.getChildren().iterator().next().getKey();
 
-                                    DatabaseReference myRef = thisRef.child("IPEOrders");
-                                    Query newquery = myRef.orderByKey().equalTo(orderID);
+                               DatabaseReference myRef = thisRef.child("IPEOrders");
+                                System.out.println("look for IPE Order: "+orderID);
+
+                                Query newquery = myRef.orderByKey().equalTo(orderID);
                                     newquery.addListenerForSingleValueEvent(
                                             new ValueEventListener() {
                                                 @Override
@@ -367,6 +458,7 @@ public class FirebaseHelper {
 
                                                     //if recent order is open, update with additions
                                                     if (tOrder.gesOpen()) {
+                                                        System.out.println("order open, so add items");
 
                                                         for (Object value : mOrderItems.get(finalI1).values()) {
                                                             DatabaseReference itemRef = thisRef.child("IPEOrders").child(orderID).child("items").push();
@@ -385,9 +477,13 @@ public class FirebaseHelper {
                                                     }
                                                     //otherwise, create new
                                                     else {
-                                                        DatabaseReference newRef = thisRef.child(childType).push();
-                                                            String key = newRef.getKey();
-                                                            //final IPEOrder mIPEOrder = new IPEOrder(key, mercID, ipeIDList.get(finalI), ipeNameList.get(finalI), true, false, mOrderTotals.get(finalI),mOrderTotals.get(finalI), mOrderTimestamps.get(finalI), mOrderItems.get(finalI));
+                                                        System.out.println("order closed, so create new and add items");
+
+                                                        DatabaseReference newRef = thisRef.child("IPEOrders").push();
+                                                            final String key = newRef.getKey();
+                                                        System.out.println("new key "+key);
+
+                                                        //final IPEOrder mIPEOrder = new IPEOrder(key, mercID, ipeIDList.get(finalI), ipeNameList.get(finalI), true, false, mOrderTotals.get(finalI),mOrderTotals.get(finalI), mOrderTimestamps.get(finalI), mOrderItems.get(finalI));
                                                             Map<String, OrderItem> items = new HashMap<String, OrderItem>();
                                                             final IPEOrder mIPEOrder = new IPEOrder(key, mercID, ipeIDList.get(finalI), ipeNameList.get(finalI), true, false, mOrderTotals.get(finalI),mOrderTotals.get(finalI), mOrderTimestamps.get(finalI), 0l, items);
                                                             newRef.setValue(mIPEOrder, new DatabaseReference.CompletionListener() {
@@ -395,26 +491,29 @@ public class FirebaseHelper {
                                                                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                                                     if (databaseError != null) {
                                                                         logError("new ipe order item error reference:"+databaseReference.toString() + " error:" +databaseError.toString());
-                                                                    } else {
 
+                                                                    } else {
+                                                                        System.out.println("order "+"created no error");
+
+                                                                        for (Object value : mOrderItems.get(finalI1).values()) {
+                                                                            DatabaseReference itemRef = thisRef.child("IPEOrders").child(key).child("items").push();
+                                                                            OrderItem mOrderItem = (OrderItem) value;
+                                                                            itemRef.setValue(mOrderItem, new DatabaseReference.CompletionListener() {
+                                                                                @Override
+                                                                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                                                                    if (databaseError != null) {
+                                                                                        logError("ipe order items error 2 reference:"+databaseReference.toString() + " error:" +databaseError.toString());
+                                                                                    } else {
+
+                                                                                    }
+                                                                                }
+                                                                            });
+                                                                        }
                                                                     }
                                                                 }
                                                             });
 
-                                                        for (Object value : mOrderItems.get(finalI1).values()) {
-                                                            DatabaseReference itemRef = thisRef.child("IPEOrders").child(key).child("items").push();
-                                                            OrderItem mOrderItem = (OrderItem) value;
-                                                            itemRef.setValue(mOrderItem, new DatabaseReference.CompletionListener() {
-                                                                @Override
-                                                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                                                    if (databaseError != null) {
-                                                                        logError("ipe order items error 2 reference:"+databaseReference.toString() + " error:" +databaseError.toString());
-                                                                    } else {
 
-                                                                    }
-                                                                }
-                                                            });
-                                                        }
 
                                                         DatabaseReference orderRef = thisRef.child("Employees").child(ipeIDList.get(finalI)).child("orders").child(key);
                                                             orderRef.setValue(key, new DatabaseReference.CompletionListener() {
@@ -444,40 +543,42 @@ public class FirebaseHelper {
                             else
                             {
 
-                                DatabaseReference newRef = thisRef.child(childType).push();
-                                String key = newRef.getKey();
+                                DatabaseReference newRef = thisRef.child("IPEOrders").push();
+                                final String key2 = newRef.getKey();
+                                System.out.println("new key "+key2);
                                 Map<String, OrderItem> items = new HashMap<String, OrderItem>();
-                                final IPEOrder mIPEOrder = new IPEOrder(key, mercID, ipeIDList.get(finalI), ipeNameList.get(finalI), true, false, mOrderTotals.get(finalI),mOrderTotals.get(finalI), mOrderTimestamps.get(finalI), 0l, items);
+                                final IPEOrder mIPEOrder = new IPEOrder(key2, mercID, ipeIDList.get(finalI), ipeNameList.get(finalI), true, false, mOrderTotals.get(finalI),mOrderTotals.get(finalI), mOrderTimestamps.get(finalI), 0l, items);
                                 newRef.setValue(mIPEOrder, new DatabaseReference.CompletionListener() {
                                     @Override
                                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                         if (databaseError != null) {
                                             logError("ipe order save failure2: "+databaseReference.toString() + " error:" +databaseError.toString());
-                                        } else {
 
+                                        } else {
+                                            for (Object value : mOrderItems.get(finalI1).values()) {
+                                                DatabaseReference itemRef = thisRef.child("IPEOrders").child(key2).child("items").push();
+                                                OrderItem mOrderItem = (OrderItem) value;
+                                                itemRef.setValue(mOrderItem, new DatabaseReference.CompletionListener() {
+                                                    @Override
+                                                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                                        if (databaseError != null) {
+                                                            logError("ipe order item save failure: "+databaseReference.toString() + " error:" +databaseError.toString());
+                                                        } else {
+
+                                                        }
+                                                    }
+
+                                                });
+                                            }
                                         }
                                     }
 
                                 });
 
-                                for (Object value : mOrderItems.get(finalI1).values()) {
-                                    DatabaseReference itemRef = thisRef.child("IPEOrders").child(key).child("items").push();
-                                    OrderItem mOrderItem = (OrderItem) value;
-                                    itemRef.setValue(mOrderItem, new DatabaseReference.CompletionListener() {
-                                        @Override
-                                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                            if (databaseError != null) {
-                                                logError("ipe order item save failure: "+databaseReference.toString() + " error:" +databaseError.toString());
-                                            } else {
 
-                                            }
-                                        }
 
-                                    });
-                                }
-
-                                    DatabaseReference orderRef = thisRef.child("Employees").child(ipeIDList.get(finalI)).child("orders").child(key);
-                                    orderRef.setValue(key, new DatabaseReference.CompletionListener() {
+                                    DatabaseReference orderRef = thisRef.child("Employees").child(ipeIDList.get(finalI)).child("orders").child(key2);
+                                    orderRef.setValue(key2, new DatabaseReference.CompletionListener() {
                                         @Override
                                         public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                             if (databaseError != null) {
@@ -928,11 +1029,11 @@ public class FirebaseHelper {
         return mEmployees;
     }
 
-    public void addEmployeeNameList(String name, final String uniqueID){
+    public void addEmployeeNameList(String name, String stagename, final String uniqueID, String status){
         System.out.println("adding employee: "+name+" "+uniqueID);
         if(name !=null && !name.equals("") && uniqueID !=null) {
-            DatabaseReference newRef2 = thisRef.child("EmployeeNames").child(name);
-            EmployeeLight mEmployeeLight = new EmployeeLight(name, uniqueID);
+            DatabaseReference newRef2 = thisRef.child("EmployeeNames").child(uniqueID);
+            EmployeeLight mEmployeeLight = new EmployeeLight(name, stagename, uniqueID, status);
             newRef2.setValue(mEmployeeLight, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {

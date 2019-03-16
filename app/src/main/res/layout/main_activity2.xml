@@ -150,7 +150,7 @@
 
     </RelativeLayout>
     <LinearLayout
-        android:id="@+id/buttonView"
+        android:id="@+id/items_view"
         android:layout_below="@+id/actionbar"
         android:layout_marginTop="10dp"
         android:layout_width="wrap_content"

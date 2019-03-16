@@ -284,13 +284,14 @@ public class MainActivity extends Activity {
     }
 
     private void getMerchant() {
-        System.out.println("GETMERCHANT CALLED");
+        System.out.println("GETMERCHANT CALLED2");
 
         new AsyncTask<Void, Void, Merchant>() {
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+                System.out.println("GETMERCHANT PRE EXECUTE");
 
 
             }
@@ -298,6 +299,8 @@ public class MainActivity extends Activity {
             @Override
             protected Merchant doInBackground(Void... params) {
                 Merchant merchant = null;
+                System.out.println("GETMERCHANT BACKGROUND");
+
                 try {
                     merchant = merchantConnector.getMerchant();
                    /* List<Employee> employees = mEmployeeConnector.getEmployees();
@@ -317,6 +320,8 @@ public class MainActivity extends Activity {
                     mName = merchant.getName();
                     mNumber = merchant.getPhoneNumber();
                     mercID = merchant.getId();
+                    System.out.println("merchant ID: "+mercID);
+
 
                     for(int i=0;i<dejaIDs.length;i++){
                         if(mercID !=null) {
@@ -339,15 +344,19 @@ public class MainActivity extends Activity {
                     }
 
                 } catch (RemoteException e) {
+                    System.out.println("RemoteException error: "+e.getMessage());
 
 
                 } catch (ClientException e) {
+                    System.out.println("ClientException error: "+e.getMessage());
 
 
                 } catch (ServiceException e) {
+                    System.out.println("ServiceException error: "+e.getMessage());
 
 
                 } catch (BindingException e) {
+                    System.out.println("BindingException error: "+e.getMessage());
 
 
                 }

@@ -89,7 +89,7 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/buttonView"
+        android:id="@+id/items_view"
         android:layout_below="@+id/actionbar"
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
@@ -614,7 +614,7 @@
         android:id="@+id/avloadingIndicatorView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:layout_below="@+id/buttonView"
+        android:layout_below="@+id/items_view"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:visibility="gone"

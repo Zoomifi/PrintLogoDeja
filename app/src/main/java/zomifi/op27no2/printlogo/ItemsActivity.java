@@ -6,19 +6,24 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,16 +40,31 @@ import com.clover.sdk.v3.employees.EmployeeConnector;
 import com.clover.sdk.v3.inventory.InventoryConnector;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.OrderConnector;
+import com.crashlytics.android.Crashlytics;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Currency;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+
+import static android.R.attr.start;
+import static zomifi.op27no2.printlogo.R.id.tabbutton;
 
 public class ItemsActivity extends Activity implements View.OnClickListener, CustomPriceEnteredListener {
     private SharedPreferences sharedPreferences;
@@ -73,6 +93,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
 
 
     private LinearLayout multiplesLayout;
+    private LinearLayout itemsLayout;
     private String PRICE_STRING = "";
     private String mOrderId;
     private Long mTimestamp;
@@ -116,6 +137,7 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
 
     private TextView pageText;
     private TextView tabText;
+    private TextView multipleText;
     private TextView titleText;
     private ValueAnimator colorAnimation;
     private ScrollView multiplesScroll;
@@ -126,15 +148,32 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
     ArrayList<Long> mOrderTimestamps = new ArrayList<Long>();
     ArrayList<Map<String, OrderItem>> mOrderItems = new ArrayList<Map<String, OrderItem>>();
 
+    //IPE Functions
+    private RelativeLayout ipeLayout;
+    private GridView gridView;
+    private Boolean editPrimed = false;
+    private Boolean removePrimed = false;
+    private Boolean ipeScreen = true;
+    private Button editButton;
+    private Button syncButton;
+    private Button removeButton;
+    Map<String,String> mIPEs = new HashMap<String, String>();
+    private List<String> gridData;
+    private GridViewAdapter customGridViewAdapter;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(zomifi.op27no2.printlogo.R.layout.activity_items);
+
+        //THIS IS THE ONLY SCREEN NOW
+
         sharedPreferences = getSharedPreferences("PREFS", Context.MODE_PRIVATE);
         edt = sharedPreferences.edit();
         sharedPreferences.getInt("mode",1);
+        mercID = sharedPreferences.getString("mercID", "");
         mContext = this;
         mHelper = new FirebaseHelper(this);
         mHelper.initialize();
@@ -142,11 +181,16 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
         donationName = sharedPreferences.getString("customName", "");
 
         multiplesLayout = (LinearLayout) findViewById(zomifi.op27no2.printlogo.R.id.multiplicity);
+        itemsLayout = (LinearLayout) findViewById(zomifi.op27no2.printlogo.R.id.items_view);
+        ipeLayout = (RelativeLayout) findViewById(zomifi.op27no2.printlogo.R.id.ipe_layout);
         orderButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.orderbutton);
-        saveButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.savebutton);
+        saveButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.save_button);
+        removeButton = (Button) findViewById(R.id.remove_button);
+        editButton = (Button) findViewById(R.id.edit_button);
+        syncButton = (Button) findViewById(R.id.sync_button);
 
-        tabButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.tabbutton);
-        // tabText = (TextView) findViewById(R.id.tabtext);
+        tabButton = (Button) findViewById(tabbutton);
+        multipleText = (TextView) findViewById(R.id.numbertext);
         pageText = (TextView) findViewById(R.id.pages);
         titleText = (TextView) findViewById(R.id.title_text);
         multiplesScroll = (ScrollView) findViewById(R.id.multiplesscroll);
@@ -203,13 +247,6 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
                 resetMultiplicity();
                 createOrders();
 
-            /*    Intent intent1 = new Intent(Intents.ACTION_START_REGISTER);
-                if(sharedPreferences.getBoolean("isactive",false) == true){
-                    intent1.putExtra(Intents.EXTRA_ORDER_ID, sharedPreferences.getString("orderid"+sharedPreferences.getInt("currenttab",0), ""));
-                }
-                startActivity(intent1);
-*/
-
             }
         });
         orderButton.setOnClickListener(new View.OnClickListener() {
@@ -228,10 +265,10 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
             @Override
             public void onClick(View v) {
                 navigateAway = true;
-                Intent myIntent = new Intent(ItemsActivity.this, IPEActivity.class);
+/*                Intent myIntent = new Intent(ItemsActivity.this, IPEActivity.class);
                 myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                ItemsActivity.this.startActivity(myIntent);
-
+                ItemsActivity.this.startActivity(myIntent);*/
+                toggleScreen();
             }
         });
         findViewById(R.id.textclear).setOnClickListener(new View.OnClickListener() {
@@ -277,6 +314,100 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
         mMultiplicity = sharedPreferences.getInt("multiplicity",1);
         setButtonColor(mMultiplicity);
         this.PRICE_STRING = "";
+
+        //IPE functions
+        removeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleRemove();
+            }
+        });
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleEdit();
+            }
+        });
+        syncButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setupGrid();
+            }
+        });
+
+
+
+        gridView = (GridView) findViewById(R.id.tabList);
+        gridData = new ArrayList<>();
+        for(int i=0; i<49 ; i++){
+            gridData.add("Click to Add");
+        }
+
+        customGridViewAdapter = new GridViewAdapter(this, gridData);
+        gridView.setAdapter(customGridViewAdapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String uniqueID = sharedPreferences.getString("uniqueID" + position, "");
+                // if position is: not full, show dialog
+                if (sharedPreferences.getBoolean("full" + position, false) == false) {
+                    CustomIPEListDialog customDialog = new CustomIPEListDialog(mContext, position);
+                    customDialog.setCancelable(false);
+                    customDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            //onResume();
+                            setupGrid();
+                        }
+                    });
+                    customDialog.show();
+
+                //else position is full and can be edited, removed, or highlighted/unhighlighted
+                }else if(editPrimed ==true){
+                    //EDIT TAB
+                    toggleEdit();
+                    //pass "" order ID since we are querying for most recent.
+                    CustomIPEOrderItemsListDialog customDialog = new CustomIPEOrderItemsListDialog(mContext, gridData.get(position), sharedPreferences.getString("uniqueID"+position,""), "", true);
+                    customDialog.setCancelable(false);
+                    customDialog.show();
+
+                }else if(removePrimed ==true){
+                    //REMOVE TAB
+                    toggleRemove();
+                    String name = gridData.get(position);
+                    Boolean ipeClocked = sharedPreferences.getBoolean(mIPEs.get(name) + "clocked", false);
+                    if(ipeClocked){
+                        Toast.makeText(mContext,"Must Be Clocked Out Before Removal", Toast.LENGTH_LONG).show();
+                    }else {
+                        IPESelector mSelector = new IPESelector(mContext);
+                        mSelector.clearPosition(position, uniqueID);
+                        //onResume();
+                        setupGrid();
+                    }
+
+                }
+                //else if position is: active, turn black - inactive, turn red
+                else{
+                    if (sharedPreferences.getBoolean("active" + position, false) == false) {
+                        edt.putBoolean("active"+position, true);
+                        edt.putBoolean(uniqueID+"active", true);
+
+                    }else{
+                        edt.putBoolean("active"+position, false);
+                        edt.putBoolean(uniqueID+"active", false);
+                    }
+                    edt.commit();
+                    setupGrid();
+                    //TODO changed to setup grid make sure thats ok...
+                    /*updateIPENumbs();
+                    customGridViewAdapter.notifyDataSetChanged();*/
+                }
+
+            }
+        });
+
+        getEmployees();
+
 
     }
 
@@ -710,6 +841,8 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
 
     private void createOrders()
     {
+        System.out.println("create orders for IPE nums: "+ipeNums);
+
         ArrayList<String> orderIdList = new ArrayList<String>();
         ArrayList<String> ipeIDList = new ArrayList<String>();
         ArrayList<String> ipeNameList = new ArrayList<String>();
@@ -753,9 +886,11 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
                     Order myOrder = null;
                     if (orderIdList.get(i).equals("")) {
                         // order doesn't exist, create it
+                        System.out.println("order doesn't exist, create it" + i);
                         myOrder = orderConnector.createOrder(new Order());
                     } else {
                         // otherwise, retrieve it
+                        System.out.println("otherwise, retrieve it" + i);
                         myOrder = orderConnector.getOrder(orderIdList.get(i));
                     }
                     myOrder= orderConnector.updateOrder(myOrder);
@@ -935,15 +1070,274 @@ public class ItemsActivity extends Activity implements View.OnClickListener, Cus
     }
 
     private void resetScreens(){
+
         for(int k=0; k<49; k++){
-                edt.putBoolean("active" + k, false);
-            edt.commit();
+            edt.putBoolean("active" + k, false);
         }
+        for (String name : mIPEs.keySet()) {
+            edt.putBoolean(mIPEs.get(name) + "active", false);
+        }
+        edt.commit();
         lineItems.clear();
         setUpCurrentItems(cPage);
         setUpButtonNames(cPage);
         titleText.setText("");
+        setupGrid();
 
     }
+
+
+
+    //IPE methods
+
+    private void toggleRemove(){
+        if (removePrimed) {
+            removePrimed = false;
+            removeButton.setAlpha(1f);
+        } else {
+            removePrimed = true;
+            removeButton.setAlpha(0.5f);
+            Toast.makeText(getApplicationContext(), "Select Tab to Remove", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void toggleEdit(){
+        if (editPrimed) {
+            editPrimed = false;
+            editButton.setAlpha(1f);
+        } else {
+            editPrimed = true;
+            editButton.setAlpha(0.5f);
+            Toast.makeText(getApplicationContext(), "Select Tab to Edit", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void setupGrid() {
+        updateIPENumbs();
+        System.out.println("setup grid called");
+        gridData.clear();
+        final IPESelector mSelector = new IPESelector(mContext);
+        final Set<String> mSet = new HashSet<String>();
+        final int[] i = {0};
+
+        //If active add name to grid
+        for (String name : mIPEs.keySet()) {
+            if (sharedPreferences.getBoolean(mIPEs.get(name) + "active", false) == true) {
+                gridData.add(name);
+                    System.out.println("active" + name);
+            }
+        }
+        Collections.sort(gridData, new Comparator<String>() {
+            @Override
+            public int compare(String s1, String s2) {
+                return s1.compareToIgnoreCase(s2);
+            }
+        });
+
+        //if active make name red with showEmployee, store active w/ #
+        for(int k=0;k<gridData.size();k++){
+            System.out.println("show red ");
+            String name = gridData.get(k);
+            mSelector.showEmployee(name, mIPEs.get(name), k);
+            edt.putBoolean("active" + k, true);
+            edt.commit();
+            mSet.add(name);
+        }
+
+        //automatically add any who are clocked but were not added manually
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference thisRef = database.getReference().child(mercID);
+        final ArrayList<String> mClocked = new ArrayList<String>();
+        Query newquery = thisRef.child("ClockedList").orderByKey();
+        newquery.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        //    System.out.println("filter datasnap" + dataSnapshot);
+                        for (DataSnapshot mSnapshot : dataSnapshot.getChildren()) {
+                            String mName = (String) mSnapshot.getValue();
+                            mClocked.add(mName);
+                        }
+                        System.out.println("clocked list: "+mClocked);
+
+                        // check if each clocked employee is added already, if not add to data and set of names
+                        for (int j=0; j<mClocked.size(); j++) {
+                            String name = mClocked.get(j);
+                            System.out.println("clocked name: "+name);
+
+                            if (!mSet.contains(name)){
+                                System.out.println("add name: "+name);
+
+                                gridData.add(name);
+                                mSelector.addEmployee(name, mIPEs.get(name), (gridData.size() - 1));
+                                mSet.add(name);
+                            }
+                        }
+
+                        //fill remaining slots with blank 'add to grid'
+                        int fill = gridData.size();
+                        if(fill<49){
+                            for(int j=fill; j<49;j++){
+                                gridData.add("Click to Add");
+                                mSelector.clearGrid(j);
+                                //         System.out.println("click to add: " + j);
+                                i[0]++;
+                            }
+                        }
+
+                        updateIPENumbs();
+                        customGridViewAdapter.notifyDataSetChanged();
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        System.out.println("error looking for employee clocked" + databaseError.toString());
+                        logError("retrieving employee clocked list error:" + databaseError.toString());
+
+                        //fill remaining slots with blank 'add to grid'
+                        int fill = gridData.size();
+                        if(fill<49){
+                            for(int j=fill; j<49;j++){
+                                gridData.add("Click to Add");
+                                mSelector.clearGrid(j);
+                                //         System.out.println("click to add: " + j);
+                                i[0]++;
+                            }
+                        }
+
+                        updateIPENumbs();
+                        customGridViewAdapter.notifyDataSetChanged();
+
+                    }
+                });
+
+
+        //if added, add to grid, but not necessarily active
+        for (String name : mIPEs.keySet()) {
+            if (sharedPreferences.getBoolean(mIPEs.get(name) + "added", false) == true) {
+                if (!mSet.contains(name)){
+                    gridData.add(name);
+                    mSelector.addEmployee(name, mIPEs.get(name), (gridData.size() - 1));
+                    mSet.add(name);
+                              //System.out.println("grid filling added" + gridData);
+                }
+            }
+        }
+/*
+        //fill remaining slots with blank 'add to grid'
+        int fill = gridData.size();
+        if(fill<49){
+            for(int j=fill; j<49;j++){
+                gridData.add("Click to Add");
+                mSelector.clearGrid(j);
+                //         System.out.println("click to add: " + j);
+                i++;
+            }
+        }
+
+        updateIPENumbs();
+        customGridViewAdapter.notifyDataSetChanged();*/
+    }
+
+    private void updateIPENumbs(){
+        ipeNums.clear();
+        for(int j=0; j<49; j++) {
+            if (sharedPreferences.getBoolean("active" + j, false) == true){
+                ipeNums.add(j);
+                //  System.out.println("ipeNums: "+ipeNums);
+            }
+        }
+    }
+
+    private void getEmployees() {
+        final Long finish = System.currentTimeMillis();
+        System.out.println("timestamp database: "+(finish-start));
+
+        final Map<String,String> mEmployees = new HashMap<String, String>();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference thisRef = database.getReference().child(mercID);
+        DatabaseReference myRef = thisRef.child("EmployeeNames");
+        myRef.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(final DataSnapshot dataSnapshot) {
+                        //    System.out.println("filter datasnap" + dataSnapshot);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //TODO figure out if finishsetup can be put in handler to help
+                                for (DataSnapshot mSnapshot : dataSnapshot.getChildren()) {
+                                    EmployeeLight mEmployee = mSnapshot.getValue(EmployeeLight.class);
+                                    mEmployees.put(mEmployee.gesStageName(), mEmployee.gesUniqueID());
+                                }
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        finishSetup(mEmployees);
+                                    }
+                                });
+                            }
+                        }).start();
+
+                        Long finish2 = System.currentTimeMillis();
+                       // System.out.println("timestamp firebase: "+(finish2-finish)+" milliseconds");
+
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                      //  System.out.println("error looking for employee names" + databaseError.toString());
+                    }
+                });
+    }
+    public void finishSetup(Map<String,String> data){
+        mIPEs = data;
+        System.out.println("my employees: "+mIPEs);
+        setupGrid();
+    }
+
+    //Switch between UIs
+    public void toggleScreen(){
+        if(ipeScreen == true){
+            //SET TO ITEMS SCREEN
+            ipeLayout.setVisibility(View.GONE);
+            editButton.setVisibility(View.GONE);
+            removeButton.setVisibility(View.GONE);
+            itemsLayout.setVisibility(View.VISIBLE);
+            multiplesLayout.setVisibility(View.VISIBLE);
+            multipleText.setVisibility(View.VISIBLE);
+            tabButton.setText("Select IPE");
+            ipeScreen=false;
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) orderButton.getLayoutParams();
+            params.addRule(RelativeLayout.LEFT_OF, tabButton.getId());
+            params.removeRule(RelativeLayout.RIGHT_OF);
+            orderButton.setLayoutParams(params);
+        }else{
+            //SET TO IPE SCREEN
+            ipeLayout.setVisibility(View.VISIBLE);
+            editButton.setVisibility(View.VISIBLE);
+            removeButton.setVisibility(View.VISIBLE);
+            itemsLayout.setVisibility(View.GONE);
+            multiplesLayout.setVisibility(View.GONE);
+            multipleText.setVisibility(View.GONE);
+            tabButton.setText("Select Items");
+            ipeScreen=true;
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) orderButton.getLayoutParams();
+            params.addRule(RelativeLayout.RIGHT_OF, saveButton.getId());
+            params.removeRule(RelativeLayout.LEFT_OF);
+            orderButton.setLayoutParams(params);
+        }
+    }
+
+    public void logError(String error){
+
+        Crashlytics.logException(new Exception(error));
+        CustomErrorDialog customDialog = new CustomErrorDialog(error,mContext);
+        customDialog.setCancelable(false);
+        customDialog.show();
+
+        Toast.makeText(mContext, error, Toast.LENGTH_LONG).show();
+
+    }
+
 
 }

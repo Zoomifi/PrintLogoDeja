@@ -65,6 +65,8 @@ public class ClockActivity extends Activity implements View.OnClickListener, Cus
     private ImageButton clearButton;
 
     Button modeButtons[] = new Button[4];
+    private int page=1;
+    private Boolean readyToScroll = true;
 
 
 
@@ -79,9 +81,6 @@ public class ClockActivity extends Activity implements View.OnClickListener, Cus
         //TODO AUTHENTICATE FIREBASE
         mHelper = new FirebaseHelper(mContext);
         mHelper.initialize();
-
-
-
 
 
         mMode = prefs.getInt("mMode",0);
@@ -165,6 +164,7 @@ public class ClockActivity extends Activity implements View.OnClickListener, Cus
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         myRef = FirebaseDatabase.getInstance().getReference().child(mercID).child("Employees");
+
         mAdapter = new FirebaseRecyclerAdapter<Employee, EmployeeHolder>(Employee.class, zomifi.op27no2.printlogo.R.layout.list_item_employee, EmployeeHolder.class, myRef) {
             @Override
             public void populateViewHolder(EmployeeHolder employeeViewHolder, Employee employee, int position) {
@@ -172,7 +172,7 @@ public class ClockActivity extends Activity implements View.OnClickListener, Cus
 
                 if(prefs.getBoolean("mupdated"+employee.gesUniqueID(), false) == false) {
                     if (employee.gesName() != null && employee.gesUniqueID() != null) {
-                        mHelper.addEmployeeNameList(employee.gesName(), employee.gesUniqueID());
+                        mHelper.addEmployeeNameList(employee.gesName(), employee.gesStageName(), employee.gesUniqueID(), employee.gesStatus());
                     }
                 }
 
@@ -209,15 +209,18 @@ public class ClockActivity extends Activity implements View.OnClickListener, Cus
                 }
 
 
-
-
             }
-
-
         };
+
+
         recycler.setAdapter(mAdapter);
 
+
+
+
+
     }
+
 
 
     public static class EmployeeHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CustomManagerListener{
@@ -286,11 +289,11 @@ public class ClockActivity extends Activity implements View.OnClickListener, Cus
                 DatabaseReference myRef = mAdapter.getRef(position);
                 if(mEmployee.gesClocked() == true) {
                     //clock employee out
-                    mHelper.clockOut(myRef, myID, time);
+                    mHelper.clockOut(myRef, mEmployee.gesName(), myID, time);
                 }
                 else if(mEmployee.gesClocked() == false){
                     //clock employee in
-                    mHelper.clockIn(myRef, myID, time);
+                    mHelper.clockIn(myRef,mEmployee.gesName(), myID, time);
                 }
                // toggle = 0;
                 notifyData();

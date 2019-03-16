@@ -89,7 +89,7 @@
 
     </RelativeLayout>
     <LinearLayout
-        android:id="@+id/buttonView"
+        android:id="@+id/items_view"
         android:layout_below="@+id/actionbar"
         android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
@@ -582,7 +582,7 @@
     </ScrollView>
     <TextView
         android:id="@+id/title_text2"
-        android:layout_below="@+id/buttonView"
+        android:layout_below="@+id/items_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""

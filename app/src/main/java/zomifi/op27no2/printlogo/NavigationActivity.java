@@ -88,7 +88,7 @@ public class NavigationActivity extends Activity implements View.OnClickListener
         ipesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(NavigationActivity.this, IPEActivity.class);
+                Intent myIntent = new Intent(NavigationActivity.this, ItemsActivity.class);
                 NavigationActivity.this.startActivity(myIntent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 

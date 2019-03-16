@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "1084458281373",
-    "firebase_url": "https://testdejavu-42f87.firebaseio.com",
-    "project_id": "testdejavu-42f87",
-    "storage_bucket": "testdejavu-42f87.appspot.com"
+    "project_number": "201723121335",
+    "firebase_url": "https://dejavu-1fb65.firebaseio.com",
+    "project_id": "dejavu-1fb65",
+    "storage_bucket": "dejavu-1fb65.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1084458281373:android:b14f97f5a2721e0e",
+        "mobilesdk_app_id": "1:201723121335:android:b14f97f5a2721e0e",
         "android_client_info": {
           "package_name": "zoomifi.dejavu"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1084458281373-fm7di4063dvsagu968di73s1iviur9fm.apps.googleusercontent.com",
+          "client_id": "201723121335-0kjlebcqpappfvc7ngcjk732al1lc0q0.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCa5MlOjWoIOwvYDyn0JqT9pXshU4OjAE4"
+          "current_key": "AIzaSyBLl0ETLgNE5tYpPXNSx-wk6-u-8maJYXw"
         }
       ],
       "services": {
@@ -39,51 +39,20 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1084458281373:android:402fbf8f347b33c1",
-        "android_client_info": {
-          "package_name": "zoomifi.op27no2.printcustomer2"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "1084458281373-fm7di4063dvsagu968di73s1iviur9fm.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCa5MlOjWoIOwvYDyn0JqT9pXshU4OjAE4"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1084458281373:android:e6cfa5401e117db1",
+        "mobilesdk_app_id": "1:201723121335:android:e6cfa5401e117db1",
         "android_client_info": {
           "package_name": "zomifi.op27no2.printlogo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1084458281373-fm7di4063dvsagu968di73s1iviur9fm.apps.googleusercontent.com",
+          "client_id": "201723121335-0kjlebcqpappfvc7ngcjk732al1lc0q0.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCa5MlOjWoIOwvYDyn0JqT9pXshU4OjAE4"
+          "current_key": "AIzaSyBLl0ETLgNE5tYpPXNSx-wk6-u-8maJYXw"
         }
       ],
       "services": {

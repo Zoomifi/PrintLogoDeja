@@ -1,3 +1,4 @@
+/*
 package zomifi.op27no2.printlogo;
 
 import android.accounts.Account;
@@ -60,8 +61,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import static android.R.attr.start;
 
 public class IPEActivity extends Activity {
     private SharedPreferences sharedPreferences;
@@ -180,14 +179,14 @@ public class IPEActivity extends Activity {
         colorAnimation.setRepeatMode(ValueAnimator.REVERSE);
         colorAnimation.setRepeatCount(Animation.INFINITE);
 
-        buttonLayout = (LinearLayout) findViewById(R.id.buttonView);
+        buttonLayout = (LinearLayout) findViewById(R.id.items_view);
 
         Button homeButton = (Button) findViewById(R.id.home_button);
         selectButton = (Button) findViewById(R.id.select_button);
-        saveButton = (Button) findViewById(R.id.savebutton);
+        saveButton = (Button) findViewById(R.id.save_button);
         clearButton = (Button) findViewById(R.id.textclear);
         removeButton = (Button) findViewById(R.id.remove_button);
-        editButton = (Button) findViewById(R.id.editbutton);
+        editButton = (Button) findViewById(R.id.edit_button);
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -226,28 +225,32 @@ public class IPEActivity extends Activity {
         removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               /* if (removePrimed) {
+               */
+/* if (removePrimed) {
                     removePrimed = false;
                     removeButton.setAlpha(1f);
                 } else {
                     removePrimed = true;
                     removeButton.setAlpha(0.5f);
                     Toast.makeText(getApplicationContext(), "Select Tab to Edit", Toast.LENGTH_SHORT).show();
-                }*/
+                }*//*
+
                 toggleRemove();
             }
         });
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-          /*      if (editPrimed) {
+          */
+/*      if (editPrimed) {
                     editPrimed = false;
                     editButton.setAlpha(1f);
                 } else {
                     editPrimed = true;
                     editButton.setAlpha(0.5f);
                     Toast.makeText(getApplicationContext(), "Select Tab to Edit", Toast.LENGTH_SHORT).show();
-                }*/
+                }*//*
+
                 toggleEdit();
             }
         });
@@ -396,14 +399,16 @@ public class IPEActivity extends Activity {
 
     //    getEmployees();
 
-      /*  for(int i=0; i<49 ; i++){
+      */
+/*  for(int i=0; i<49 ; i++){
             if(sharedPreferences.getString("name"+i, "Click to Add").equals("Click to Add")){
                 gridData.set(i,"Click to Add");
             }
             else {
                 gridData.set(i, sharedPreferences.getString("name" + i, "Click to Add") + " \n" + sharedPreferences.getString("lastfour" + i, "") + " \n" + sharedPreferences.getString("custom" + i, ""));
             }
-        }*/
+        }*//*
+
         customGridViewAdapter.notifyDataSetChanged();
 
         // Retrieve the Clover account
@@ -480,9 +485,11 @@ public class IPEActivity extends Activity {
 
 
 
-    /**
+    */
+/**
      * UI animation (ProgressBar) for End User to recognize that the creation of the Customer is taking place.
-     */
+     *//*
+
 
     private void startProgressDialog()
     {
@@ -491,9 +498,11 @@ public class IPEActivity extends Activity {
         progressDialog.show();
     }
 
-    /**
+    */
+/**
      * Cancel the ProgressBar.
-     */
+     *//*
+
 
     private void cancelProgressDialog()
     {
@@ -621,9 +630,11 @@ public class IPEActivity extends Activity {
                                 String name = sharedPreferences.getString(id + "_name", "");
                                 String category = sharedPreferences.getString(id + "_category", "");
                                 Long price = Long.parseLong(sharedPreferences.getString(id + "_price" + 1, "0"));
-                                /*LineItem myLineItem = new LineItem();
+                                */
+/*LineItem myLineItem = new LineItem();
                                 myLineItem.setName(name);
-                                myLineItem.setPrice(price);*/
+                                myLineItem.setPrice(price);*//*
+
                                 OrderItem mOrderItem = new OrderItem(name, category, price, time ,0l,0l, false, false, false, false);
                                 iOrderItems.put("item"+counter, mOrderItem);
                                 iTotal = iTotal+price;
@@ -666,25 +677,31 @@ public class IPEActivity extends Activity {
      //       System.out.println("order: " + orders);
 
             String toastString = "";
-     /*       ArrayList<String> mOrderIds = new ArrayList<String>();
+     */
+/*       ArrayList<String> mOrderIds = new ArrayList<String>();
             ArrayList<Long> mOrderTotals = new ArrayList<Long>();
-            ArrayList<Long> mOrderTimestamps = new ArrayList<Long>();*/
+            ArrayList<Long> mOrderTimestamps = new ArrayList<Long>();*//*
+
+*/
 /*
             ArrayList<Map<String, OrderItem>> mOrderItems = new ArrayList<Map<String, OrderItem>>();
-*/
+*//*
+
             for(int i=0;i<orders.size();i++) {
                 toastString = toastString + orders.get(i).getId()+", ";
                 mOrderIds.add(orders.get(i).getId());
               //  mOrderTotals.add(orders.get(i).getTotal());
               //  mOrderTimestamps.add(orders.get(i).getCreatedTime());
-               /* List<LineItem> myItems = orders.get(i).getLineItems();
+               */
+/* List<LineItem> myItems = orders.get(i).getLineItems();
                 Map<String, OrderItem> items = new HashMap<String, OrderItem>();
                 for (int j = 0; j < myItems.size(); j++) {
                     String name = myItems.get(j).getName();
                     Long price = myItems.get(j).getPrice();
                     OrderItem mOrderItem = new OrderItem(name, price, orders.get(i).getCreatedTime(), 0l, false);
                     items.put("item" + j, mOrderItem);
-                }*/
+                }*//*
+
                 // mOrderItems.add(items);
             }
 
@@ -739,7 +756,8 @@ public class IPEActivity extends Activity {
         return count;
     }
 
- /*   private void getEmployees() {
+ */
+/*   private void getEmployees() {
         ArrayList<String> mNameList = new ArrayList<String>();
         Map<String,String> mMap = new HashMap<String, String>();
         mNameList = mDatabaseHelper.getArray("namelist");
@@ -780,14 +798,16 @@ public class IPEActivity extends Activity {
                 System.out.println("failed to retrieve employees");
             }
         });
-    }*/
+    }*//*
+
 
     private void getEmployees() {
         //new getEmployees(this).execute();
 
         final Long start = System.currentTimeMillis();
 
-  /*      ArrayList<String> mNameList = new ArrayList<String>();
+  */
+/*      ArrayList<String> mNameList = new ArrayList<String>();
         Map<String,String> mMap = new HashMap<String, String>();
         try {
             DB snappydb = DBFactory.open(mContext);
@@ -802,7 +822,8 @@ public class IPEActivity extends Activity {
             e.printStackTrace();
         }
         mIPEs = mMap;
-        setupGrid();*/
+        setupGrid();*//*
+
 
         final Long finish = System.currentTimeMillis();
         System.out.println("timestamp database: "+(finish-start));
@@ -846,101 +867,6 @@ public class IPEActivity extends Activity {
     }
 
 
-    private class getEmployyees extends AsyncTask<Void, Void,  Map<String,String>> {
-        private Context mContext;
-
-        public getEmployyees(Context context){
-            super();
-            mContext = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-                ArrayList<String> mNameList = new ArrayList<String>();
-                Map<String,String> mMap = new HashMap<String, String>();
-                mNameList = mDatabaseHelper.getArray("namelist");
-                for(int i=0;i<mNameList.size();i++){
-                    mMap.put(mNameList.get(i), mDatabaseHelper.getString(mNameList.get(i)));
-                }
-                mIPEs = mMap;
-                setupGrid();
-
-        }
-
-        @Override
-        protected Map<String,String> doInBackground(Void... params) {
-
-           /* FirebaseHelper mHelper = new FirebaseHelper(mContext);
-            mHelper.retrieveIPENamesLight(new onGetEmployeeNamesLight() {
-                @Override
-                public void onStart() {
-                    //DO SOME THING WHEN START GET DATA HERE
-                }
-
-                @Override
-                public void onSuccess(Map<String,String> data) {
-                    //DO SOME THING WHEN GET DATA SUCCESS HERE
-                    Map<String,String> mMap = new HashMap<String,String>();
-
-                    ArrayList<String> mNameList = new ArrayList<String>();
-                    Iterator it = data.entrySet().iterator();
-                    SnappyHelper mDataHelper = new SnappyHelper(mContext);
-                    while (it.hasNext()) {
-                        Map.Entry pair = (Map.Entry)it.next();
-                        System.out.println("key pairs: "+pair.getKey() + " = " + pair.getValue());
-                        mDataHelper.storeString((String)pair.getKey(),(String) pair.getValue());
-                        mNameList.add((String) pair.getKey());
-                        it.remove(); // avoids a ConcurrentModificationException
-                    }
-                    mDataHelper.storeArray("namelist", mNameList);
-                    finishAsync(data);
-
-                }
-
-                @Override
-                public void onFailed(DatabaseError databaseError) {
-                    //DO SOME THING WHEN GET DATA FAILED HERE
-                    System.out.println("failed to retrieve employees");
-                }
-            });*/
-            final Map<String,String> mEmployees = new HashMap<String, String>();
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference thisRef = database.getReference().child(mercID);
-            DatabaseReference myRef = thisRef.child("EmployeeNames");
-            myRef.addListenerForSingleValueEvent(
-                    new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            //    System.out.println("filter datasnap" + dataSnapshot);
-                            for (DataSnapshot mSnapshot : dataSnapshot.getChildren()) {
-                                EmployeeLight mEmployee = mSnapshot.getValue(EmployeeLight.class);
-                                mEmployees.put(mEmployee.gesStageName(), mEmployee.gesUniqueID());
-                            }
-                            finishSetup(mEmployees);
-                            Long finish = System.currentTimeMillis();
-                            System.out.println("retrieve IPE duration: "+(finish-start)+" milliseconds");
-
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            System.out.println("error looking for employee names" + databaseError.toString());
-                        }
-                    });
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Map<String,String> data) {
-            super.onPostExecute(data);
-
-        }
-
-    }
-
-
 
     public void finishSetup(Map<String,String> data){
         mIPEs = data;
@@ -979,7 +905,8 @@ public class IPEActivity extends Activity {
         }
      //   System.out.println("active sorted" + gridData);
 
- /*       for (String id : mIPEs) {
+ */
+/*       for (String id : mIPEs) {
             String name = sharedPreferences.getString(id + "name", "Click to Add:");
             if (sharedPreferences.getBoolean(id + "active", false) == true) {
                 if(!mSet.contains(name)) {
@@ -997,7 +924,8 @@ public class IPEActivity extends Activity {
                     edt.putBoolean("active"+i, false);
                 }
             }
-        }*/
+        }*//*
+
 
         //automatically add any who are clockedbutweren't added manually
         for (String name : mIPEs.keySet()) {
@@ -1024,6 +952,7 @@ public class IPEActivity extends Activity {
             }
         }
 
+*/
 /*            for (String id : mIPEs) {
             String name = sharedPreferences.getString(id + "name", "Click to Add:");
             if (sharedPreferences.getBoolean(id + "clocked", false) == true) {
@@ -1047,7 +976,8 @@ public class IPEActivity extends Activity {
                     i++;
                 }
             }
-        }*/
+        }*//*
+
         int fill = gridData.size();
 
         if(fill<49){
@@ -1058,6 +988,7 @@ public class IPEActivity extends Activity {
                 i++;
             }
         }
+*/
 /*        for(int i=0; i<49 ; i++){
 
             if(sharedPreferences.getString("name"+i, "Click to Add").equals("Click to Add")){
@@ -1066,10 +997,11 @@ public class IPEActivity extends Activity {
             else {
                 gridData.set(i, sharedPreferences.getString("name" + i, "Click to Add") + " \n" + sharedPreferences.getString("lastfour" + i, "") + " \n" + sharedPreferences.getString("custom" + i, ""));
             }
-        }*/
+        }*//*
+
 
         customGridViewAdapter.notifyDataSetChanged();
     }
 
 
-}
+}*/

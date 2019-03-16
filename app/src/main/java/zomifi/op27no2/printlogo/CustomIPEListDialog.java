@@ -22,8 +22,11 @@ import android.widget.TextView;
 
 import com.clover.sdk.util.CloverAccount;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -140,12 +143,12 @@ public class CustomIPEListDialog extends Dialog
         RecyclerView recycler = (RecyclerView) findViewById(R.id.employee_recycler);
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(new LinearLayoutManager(context));
-        myRef = FirebaseDatabase.getInstance().getReference().child(mercID).child("Employees");
-        mAdapter = new FirebaseRecyclerAdapter<Employee, EmployeeHolder>(Employee.class, zomifi.op27no2.printlogo.R.layout.list_item_employee2, EmployeeHolder.class, myRef) {
+        myRef = FirebaseDatabase.getInstance().getReference().child(mercID).child("EmployeeNames");
+        mAdapter = new FirebaseRecyclerAdapter<EmployeeLight, EmployeeHolder>(EmployeeLight.class, zomifi.op27no2.printlogo.R.layout.list_item_employee2, EmployeeHolder.class, myRef) {
             @Override
-            public void populateViewHolder(EmployeeHolder employeeViewHolder, Employee employee, int position) {
-                employeeViewHolder.setName(employee.gesName());
-                employeeViewHolder.setText(employee.gesStageName());
+            public void populateViewHolder(EmployeeHolder employeeViewHolder, EmployeeLight employee, int position) {
+                employeeViewHolder.setName(employee.gesStageName());
+                employeeViewHolder.setText(employee.gesName());
                 //employeeViewHolder.hideButton();
 
                 if(position % 2 == 0){
@@ -156,7 +159,7 @@ public class CustomIPEListDialog extends Dialog
                 }
 
                 //conditions which will hide employee, adds to mSet which is counts offset for alternating gray/white list items
-                if(!employee.gesName().toLowerCase().contains(editString.toLowerCase()) ||employee.gesStatus().equals("Inactive")){
+                if(!employee.gesStageName().toLowerCase().contains(editString.toLowerCase()) || employee.gesStatus().equals("Inactive")){
                     mSet.add(position);
                     employeeViewHolder.setVisibility(false);
                 }
@@ -181,22 +184,37 @@ public class CustomIPEListDialog extends Dialog
                     @Override
                     public void onItemClick(View view, int position) {
                         IPESelector mSelector = new IPESelector(context);
-                        Employee employee = (Employee) mAdapter.getItem(position);
-                        // mSelector.showEmployee(employee.gesName(), employee.gesUniqueID(), mPosition);
-                        edt.putBoolean(employee.gesUniqueID()+"added", true);
-                        edt.putBoolean(employee.gesUniqueID()+"active", true);
-                        edt.commit();
-                        if(prefs.getBoolean("autoClock", true)==true){
-                            System.out.println("should be clocked");
-                            Long time = Calendar.getInstance().getTimeInMillis();
-                            mHelper.clockIn(myRef.child(employee.gesUniqueID()), employee.gesUniqueID(), time);
-                        }
-                        dismiss();
-                        if(mAdapter !=null) {
-                            mAdapter.cleanup();
-                        }
-                        RecyclerView recycler = (RecyclerView) findViewById(R.id.employee_recycler);
-                        recycler.setAdapter(null);
+                        EmployeeLight employeelight = (EmployeeLight) mAdapter.getItem(position);
+                        //get full Employee from employeeLight ID
+                        final DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child(mercID).child("Employees").child(employeelight.gesUniqueID());
+                        myRef.addListenerForSingleValueEvent(
+                                new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                            Employee mEmployee = dataSnapshot.getValue(Employee.class);
+                                        edt.putBoolean(mEmployee.gesUniqueID()+"added", true);
+                                        edt.putBoolean(mEmployee.gesUniqueID()+"active", true);
+                                        edt.commit();
+                                        if(prefs.getBoolean("autoClock", true)==true){
+                                            System.out.println("should be clocked");
+                                            Long time = Calendar.getInstance().getTimeInMillis();
+                                            DatabaseReference employeeRef = FirebaseDatabase.getInstance().getReference().child(mercID).child("Employees");
+                                            mHelper.clockIn(employeeRef.child(mEmployee.gesUniqueID()), mEmployee.gesName(), mEmployee.gesUniqueID(), time);
+                                        }
+                                        dismiss();
+                                        if(mAdapter !=null) {
+                                            mAdapter.cleanup();
+                                        }
+                                        RecyclerView recycler = (RecyclerView) findViewById(R.id.employee_recycler);
+                                        recycler.setAdapter(null);
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                        System.out.println("error looking for employee names" + databaseError.toString());
+                                    }
+                        });
+
+
                     }
 
                     @Override

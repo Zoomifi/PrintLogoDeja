@@ -98,7 +98,7 @@ public class SetupActivity extends Activity implements View.OnClickListener {
         TRIGGER = 0;
         LOCKED = true;
 
-        buttonLayout = (LinearLayout) findViewById(zomifi.op27no2.printlogo.R.id.buttonView);
+        buttonLayout = (LinearLayout) findViewById(zomifi.op27no2.printlogo.R.id.items_view);
        // customerLayout.setVisibility(View.GONE);
 
         barButton = (Button) findViewById(zomifi.op27no2.printlogo.R.id.bar_button);

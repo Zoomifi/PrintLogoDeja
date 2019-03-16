@@ -97,6 +97,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
     private Spinner mStatusSpinner;
     private Boolean isNew;
     private static String employeeUniqueID;
+    private static String employeeName;
     private static String orderUniqueID;
     private static FirebaseRecyclerAdapter mAdapter;
     private DatabaseReference myItemsRef;
@@ -146,12 +147,13 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
     private Boolean loaded;
     CustomManagerListener mManagerListener;
 
-    public CustomIPEOrderItemsListDialog(Context context, String employeeUniqueID, String orderUniqueID, Boolean fromIPEScreen)
+    public CustomIPEOrderItemsListDialog(Context context, String employeeName, String employeeUniqueID, String orderUniqueID, Boolean fromIPEScreen)
     {
         //if coming from order list, pass an order push ID to get a specific order
         //otherwise, pass orderUniqueID as null to load the most recent order (e.g. from 'view tab')
         super(context);
         this.context = context;
+        this.employeeName = employeeName;
         this.employeeUniqueID = employeeUniqueID;
         this.orderUniqueID = orderUniqueID;
         this.fromIPEScreen = fromIPEScreen;
@@ -320,7 +322,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                     mHelper.closeIPEOrder(orderUniqueID);
                     DatabaseReference eRef = thisRef.child("Employees").child(employeeUniqueID);
                     Long time = Calendar.getInstance().getTimeInMillis();
-                    mHelper.clockOut(eRef, employeeUniqueID, time);
+                    mHelper.clockOut(eRef, employeeName, employeeUniqueID, time);
                     hideOrderClose();
                 }
             }
@@ -460,12 +462,14 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
     }
 
     private void loadList(){
+
         final RecyclerView recycler = (RecyclerView) findViewById(R.id.shift_recycler);
         recycler.setHasFixedSize(true);
         mManager = new LinearLayoutManager(context);
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         recycler.setLayoutManager(mManager);
+
 
         mAdapter = new FirebaseRecyclerAdapter<OrderItem, ItemHolder>(OrderItem.class, R.layout.list_item_ipeorderitem, ItemHolder.class, myItemsRef) {
             @Override
@@ -856,12 +860,12 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                         if(mEmployee.gesClocked() == true) {
                             //clock employee out
                             Long clicktime = Calendar.getInstance().getTimeInMillis();
-                            mHelper.clockOut(employeeRef, myID, clicktime);
+                            mHelper.clockOut(employeeRef,mEmployee.gesName(), myID, clicktime);
                         }
                         else if(mEmployee.gesClocked() == false){
                             //clock employee in
                             Long clicktime = Calendar.getInstance().getTimeInMillis();
-                            mHelper.clockIn(employeeRef, myID, clicktime);
+                            mHelper.clockIn(employeeRef, mEmployee.gesName(), myID, clicktime);
                         }
 
 
@@ -932,12 +936,12 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
                         if(mEmployee.gesClocked() == true) {
                             //clock employee out
                             Long clicktime = Calendar.getInstance().getTimeInMillis();
-                            mHelper.clockOut(employeeRef, myID, clicktime);
+                            mHelper.clockOut(employeeRef,mEmployee.gesName(), myID, clicktime);
                         }
                         else if(mEmployee.gesClocked() == false){
                             //clock employee in
                             Long clicktime = Calendar.getInstance().getTimeInMillis();
-                            mHelper.clockIn(employeeRef, myID, clicktime);
+                            mHelper.clockIn(employeeRef, mEmployee.gesName(), myID, clicktime);
                         }
 
 
@@ -1137,7 +1141,7 @@ public class CustomIPEOrderItemsListDialog extends Dialog implements View.OnClic
             mHelper.closeIPEOrder(orderUniqueID);
             DatabaseReference eRef = thisRef.child("Employees").child(employeeUniqueID);
             Long time = Calendar.getInstance().getTimeInMillis();
-            mHelper.clockOut(eRef, employeeUniqueID,time);
+            mHelper.clockOut(eRef, employeeName, employeeUniqueID,time);
             hideOrderClose();
 
         }
